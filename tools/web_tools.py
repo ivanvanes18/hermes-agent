@@ -149,8 +149,19 @@ def _get_backend() -> str:
     keys manually without running setup.
     """
     configured = (_load_web_config().get("backend") or "").lower().strip()
-    if configured in {"parallel", "firecrawl", "tavily", "exa", "searxng", "brave-free", "ddgs", "xai"}:
-        return configured
+    if configured:
+        # Built-ins keep legacy behavior; user/plugin providers are accepted
+        # when the plugin registry already knows them. Typos still fall through
+        # to key-based fallback instead of breaking existing configs.
+        if configured in {"parallel", "firecrawl", "tavily", "exa", "searxng", "brave-free", "ddgs", "xai"}:
+            return configured
+        try:
+            from agent.web_search_registry import get_provider as _get_web_provider
+
+            if _get_web_provider(configured) is not None:
+                return configured
+        except Exception:
+            pass
 
     # Fallback for manual / legacy config — pick the highest-priority
     # available backend. Explicit user credentials (TAVILY_API_KEY etc.)
@@ -209,8 +220,19 @@ def _get_capability_backend(capability: str) -> str:
     """
     cfg = _load_web_config()
     specific = (cfg.get(f"{capability}_backend") or "").lower().strip()
-    if specific and _is_backend_available(specific):
-        return specific
+    if specific:
+        # Built-ins keep legacy behavior; user/plugin providers are accepted
+        # when the plugin registry already knows them. Typos still fall through
+        # to shared/backend fallback instead of breaking existing configs.
+        if specific in {"parallel", "firecrawl", "tavily", "exa", "searxng", "brave-free", "ddgs", "xai"}:
+            return specific
+        try:
+            from agent.web_search_registry import get_provider as _get_web_provider
+
+            if _get_web_provider(specific) is not None:
+                return specific
+        except Exception:
+            pass
     return _get_backend()
 
 
