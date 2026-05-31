@@ -8047,8 +8047,8 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         if getattr(event, "channel_context", None):
             message_text = f"{event.channel_context}\n\n[New message]\n{message_text}"
 
-        # Declare at outer scope so the audio-file-paths handling block below
-        # remains safe when ``event.media_urls`` is empty (no inner block runs).
+        # Declare at outer scope so the media-file-paths handling blocks below
+        # remain safe when ``event.media_urls`` is empty (no inner block runs).
         audio_file_paths: list[str] = []
         video_paths: list[str] = []
 
@@ -8179,11 +8179,9 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                 _note = (
                     f"[The user sent a video attachment: '{_display}'. "
                     f"It is saved at: {_agent_path}. "
-                    f"Its content is not inlined here. If the user's request involves "
-                    f"what the video contains, inspect or process it yourself — for "
-                    f"example by passing the path to a video analysis or media tool — "
-                    f"instead of asking the user to describe it. Only ask what to do "
-                    f"with it if their intent is genuinely unclear.]"
+                    f"If the user asks to analyze it, call video_analyze with "
+                    f"video_url: {_agent_path} and a question based on the user's request. "
+                    f"If there is no caption, use the conversation context or ask what to analyze.]"
                 )
                 message_text = f"{_note}\n\n{message_text}"
 
