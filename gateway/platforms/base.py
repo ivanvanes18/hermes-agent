@@ -852,6 +852,10 @@ MEDIA_DELIVERY_SAFE_ROOTS = (
     VIDEO_CACHE_DIR,
     DOCUMENT_CACHE_DIR,
     SCREENSHOT_CACHE_DIR,
+    # Generic media cache used by browser/computer-use screenshots and
+    # platform delivery helpers. The send pipeline documents MEDIA:<path>
+    # support for Hermes media caches, so this root must be accepted too.
+    _HERMES_HOME / "media_cache",
     _HERMES_HOME / "image_cache",
     _HERMES_HOME / "audio_cache",
     _HERMES_HOME / "video_cache",

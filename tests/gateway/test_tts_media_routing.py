@@ -62,6 +62,36 @@ def _allowed_media_path(tmp_path, monkeypatch, name):
     return media_file.resolve()
 
 
+def test_default_media_cache_is_allowed_for_media_tags(tmp_path, monkeypatch):
+    """Files under ~/.hermes/media_cache must be deliverable as MEDIA attachments."""
+    from gateway.platforms import base
+
+    default_media_root = base._HERMES_HOME / "media_cache"
+    assert default_media_root in base.MEDIA_DELIVERY_SAFE_ROOTS
+
+    fake_home = tmp_path / "hermes-home"
+    media_root = fake_home / "media_cache"
+    media_file = media_root / "test_media_delivery_safe_root.png"
+    media_root.mkdir(parents=True, exist_ok=True)
+    media_file.write_bytes(b"not-a-real-png-but-a-regular-file")
+    monkeypatch.setattr(base, "_HERMES_HOME", fake_home)
+    monkeypatch.setattr(
+        base,
+        "MEDIA_DELIVERY_SAFE_ROOTS",
+        tuple(
+            media_root if root == default_media_root else root
+            for root in base.MEDIA_DELIVERY_SAFE_ROOTS
+        ),
+    )
+
+    media_files, cleaned = BasePlatformAdapter.extract_media(f"QR\nMEDIA:{media_file}")
+
+    assert cleaned == "QR"
+    assert BasePlatformAdapter.filter_media_delivery_paths(media_files) == [
+        (str(media_file.resolve()), False)
+    ]
+
+
 @pytest.mark.asyncio
 async def test_base_adapter_routes_telegram_flac_media_tag_to_document_sender(tmp_path, monkeypatch):
     adapter = _MediaRoutingAdapter()
