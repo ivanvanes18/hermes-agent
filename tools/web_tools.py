@@ -1204,9 +1204,37 @@ async def web_extract_tool(
 
 
 # Convenience function to check Firecrawl credentials
+def _configured_web_plugin_available(configured: str, *, capability: str) -> bool:
+    """Return True when an explicitly configured plugin provider can handle a capability."""
+    if not configured or configured in {"exa", "parallel", "firecrawl", "tavily", "searxng", "brave-free", "ddgs", "xai"}:
+        return False
+    try:
+        _ensure_web_plugins_loaded()
+        from agent.web_search_registry import get_provider as _get_web_provider
+
+        provider = _get_web_provider(configured)
+    except Exception:
+        return False
+    if provider is None:
+        return False
+    if capability == "search":
+        return bool(provider.supports_search())
+    if capability == "extract":
+        return bool(provider.supports_extract())
+    return False
+
+
 def check_web_api_key() -> bool:
-    """Check whether the configured web backend is available."""
-    configured = _load_web_config().get("backend", "").lower().strip()
+    """Check whether the configured web backend is available or plugin-routable."""
+    cfg = _load_web_config()
+    configured = (cfg.get("backend") or "").lower().strip()
+    search_configured = (cfg.get("search_backend") or configured).lower().strip()
+    extract_configured = (cfg.get("extract_backend") or configured).lower().strip()
+
+    for backend, capability in ((search_configured, "search"), (extract_configured, "extract")):
+        if _configured_web_plugin_available(backend, capability=capability):
+            return True
+
     if configured in {"exa", "parallel", "firecrawl", "tavily", "searxng", "brave-free", "ddgs", "xai"}:
         return _is_backend_available(configured)
     return any(

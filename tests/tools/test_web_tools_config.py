@@ -16,6 +16,8 @@ import types
 import pytest
 from unittest.mock import patch, MagicMock, AsyncMock
 
+from agent.web_search_provider import WebSearchProvider
+
 
 class TestFirecrawlClientConfig:
     """Test suite for Firecrawl client initialization."""
@@ -568,6 +570,26 @@ class TestWebSearchErrorHandling:
         assert "traceback" not in result
 
 
+class FakeConfiguredWebProvider(WebSearchProvider):
+    def __init__(self, name="custom-web", *, search=True, extract=True):
+        self._name = name
+        self._search = search
+        self._extract = extract
+
+    @property
+    def name(self):
+        return self._name
+
+    def is_available(self):
+        return False
+
+    def supports_search(self):
+        return self._search
+
+    def supports_extract(self):
+        return self._extract
+
+
 class TestCheckWebApiKey:
     """Test suite for check_web_api_key() unified availability check."""
 
@@ -598,6 +620,35 @@ class TestCheckWebApiKey:
             os.environ.pop(key, None)
         for p in self._managed_patchers:
             p.stop()
+        try:
+            from agent.web_search_registry import _reset_for_tests
+            _reset_for_tests()
+        except Exception:
+            pass
+
+    def test_configured_plugin_backend_keeps_web_tool_visible_without_builtin_keys(self):
+        from agent.web_search_registry import _reset_for_tests, register_provider
+        from tools.web_tools import check_web_api_key
+
+        _reset_for_tests()
+        register_provider(FakeConfiguredWebProvider())
+
+        with patch("tools.web_tools._load_web_config", return_value={"backend": "custom-web"}), \
+             patch("tools.web_tools._ensure_web_plugins_loaded"), \
+             patch("tools.web_tools._ddgs_package_importable", return_value=False):
+            assert check_web_api_key() is True
+
+    def test_configured_capability_plugin_backend_keeps_web_tool_visible_without_builtin_keys(self):
+        from agent.web_search_registry import _reset_for_tests, register_provider
+        from tools.web_tools import check_web_api_key
+
+        _reset_for_tests()
+        register_provider(FakeConfiguredWebProvider("custom-search", search=True, extract=False))
+
+        with patch("tools.web_tools._load_web_config", return_value={"search_backend": "custom-search"}), \
+             patch("tools.web_tools._ensure_web_plugins_loaded"), \
+             patch("tools.web_tools._ddgs_package_importable", return_value=False):
+            assert check_web_api_key() is True
 
     def test_parallel_key_only(self):
         with patch.dict(os.environ, {"PARALLEL_API_KEY": "test-key"}):

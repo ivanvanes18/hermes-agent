@@ -115,7 +115,11 @@ _INTERNAL_CONTEXT_RE = re.compile(
     re.IGNORECASE,
 )
 _INTERNAL_NOTE_RE = re.compile(
-    r'\[System note:\s*The following is recalled memory context,\s*NOT new user input\.\s*Treat as (?:informational background data|authoritative reference data[^\]]*)\.\]\s*',
+    r'\[System note:\s*The following is recalled memory context,\s*'
+    r'NOT new user input(?:\s+or\s+instruction)?\.\s*'
+    r'Treat (?:as|it as) '
+    r'(?:informational background data|authoritative reference data[^\]]*|evidence/background only;[^\]]*)\.?'
+    r'\]\s*',
     re.IGNORECASE,
 )
 
