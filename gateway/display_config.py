@@ -33,6 +33,9 @@ from typing import Any
 _GLOBAL_DEFAULTS: dict[str, Any] = {
     "tool_progress": "all",
     "tool_progress_grouping": "accumulate",  # "accumulate" = edit one bubble; "separate" = one msg per tool
+    # "code_block" renders terminal progress as fenced Markdown code on capable
+    # platforms; "inline" keeps the legacy compact `terminal: "cmd…"` preview.
+    "terminal_progress_format": "code_block",
     "show_reasoning": False,
     "tool_preview_length": 0,
     "streaming": None,  # None = follow top-level streaming config
@@ -242,6 +245,9 @@ def _normalise(setting: str, value: Any) -> Any:
     if setting == "tool_progress_grouping":
         val = str(value).lower()
         return val if val in ("accumulate", "separate") else "accumulate"
+    if setting == "terminal_progress_format":
+        val = str(value).lower().replace("-", "_")
+        return val if val in ("code_block", "inline") else "code_block"
     if setting == "tool_preview_length":
         try:
             return int(value)

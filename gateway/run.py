@@ -13822,6 +13822,13 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
         )
         # Tool progress grouping: "accumulate" (edit one bubble) or "separate" (one msg per tool)
         progress_grouping = resolve_display_setting(user_config, platform_key, "tool_progress_grouping") or "accumulate"
+        # Terminal tool progress shape: upstream defaults to Markdown code blocks
+        # on code-capable platforms; Ivan's Telegram prefers the legacy compact
+        # inline preview to avoid blue copy widgets in the mobile client.
+        terminal_progress_format = (
+            resolve_display_setting(user_config, platform_key, "terminal_progress_format")
+            or "code_block"
+        )
         # Disable tool progress for webhooks - they don't support message editing,
         # so each progress line would be sent as a separate message.
         from gateway.config import Platform
@@ -14031,6 +14038,7 @@ class GatewayRunner(GatewayAuthorizationMixin, GatewayKanbanWatchersMixin, Gatew
                 _progress_adapter = None
             if (
                 getattr(_progress_adapter, "supports_code_blocks", False)
+                and terminal_progress_format == "code_block"
                 and tool_name == "terminal"
                 and isinstance(args, dict)
                 and isinstance(args.get("command"), str)
