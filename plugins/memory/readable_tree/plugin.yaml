@@ -1,0 +1,3 @@
+name: readable_tree
+version: 0.1.0
+description: "Local-first Markdown memory tree with raw evidence capture, reviewable inbox, SQLite FTS retrieval, and compact context packs."

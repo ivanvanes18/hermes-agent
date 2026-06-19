@@ -1,0 +1,4 @@
+{"category":"memory-methodology","query":"что мы решили по памяти из видео","expected_terms":["source-backed","Context Pack"]}
+{"category":"behavior","query":"как агент учится на ошибках Ивана","expected_terms":["behavior rules","regression cases"]}
+{"category":"retrieval","query":"почему semantic search не источник истины","expected_terms":["candidate","source-backed"]}
+{"category":"graph","query":"как связаны события и заметки памяти","expected_terms":["event","note"]}
