@@ -532,6 +532,90 @@ def test_dream_cycle_reports_behavioral_learning_gaps(tmp_path):
     assert correction.id in content
 
 
+def test_backfill_does_not_flag_corrections_linked_by_note_source_ids(tmp_path):
+    from plugins.memory.readable_tree.backfill import plan_backfill
+
+    store = ReadableMemoryStore(tmp_path, agent="reyna")
+    store.initialize()
+    correction = MemoryNote(
+        id="corr-linked",
+        body="Correction event: Иван уточнил рабочее правило для диалогов: Бобби только по запросу.",
+        type="correction",
+        agent="reyna",
+        status="active",
+        importance="high",
+        source="correction_event",
+        source_quality="session",
+        source_ids=["note:legacy-correction"],
+        tags=["behavioral-memory", "mistake:wrong_agent_routing"],
+    )
+    rule = MemoryNote(
+        id="rule-linked",
+        body="Behavior rule: do not bring Bobby into unrelated analysis.",
+        type="behavior_rule",
+        agent="reyna",
+        status="active",
+        importance="high",
+        source="correction_event",
+        source_quality="session",
+        source_ids=["note:legacy-correction"],
+        tags=["behavioral-memory", "mistake:wrong_agent_routing"],
+    )
+    case = MemoryNote(
+        id="case-linked",
+        body="Regression case:\nmistake_class: wrong_agent_routing\nlinked_rule_id: rule-linked",
+        type="regression_case",
+        agent="reyna",
+        status="active",
+        importance="high",
+        source="correction_event",
+        source_quality="session",
+        source_ids=["note:legacy-correction"],
+        tags=["behavioral-memory", "mistake:wrong_agent_routing"],
+    )
+    for note in [correction, rule, case]:
+        store.write_note(note)
+
+    plan = plan_backfill(store, limit=20, include_archived=False, dry_run=True)
+
+    assert correction.id not in {item["note_id"] for item in plan["legacy_corrections"]}
+
+
+def test_backfill_recognizes_legacy_note_colon_source_id_links(tmp_path):
+    from plugins.memory.readable_tree.backfill import plan_backfill
+
+    store = ReadableMemoryStore(tmp_path, agent="reyna")
+    store.initialize()
+    legacy = MemoryNote(
+        id="legacy-correction",
+        body="Иван уточнил рабочее правило для диалогов: Бобби разбирается только по запросу.",
+        type="correction",
+        agent="reyna",
+        status="active",
+        importance="high",
+        source="telegram",
+        source_quality="session",
+        tags=["behavioral-memory"],
+    )
+    rule = MemoryNote(
+        id="rule-for-legacy",
+        body="Behavior rule: do not bring Bobby into unrelated analysis.",
+        type="behavior_rule",
+        agent="reyna",
+        status="active",
+        importance="high",
+        source="correction_event",
+        source_quality="session",
+        source_ids=["note:legacy-correction"],
+    )
+    store.write_note(legacy)
+    store.write_note(rule)
+
+    plan = plan_backfill(store, limit=20, include_archived=False, dry_run=True)
+
+    assert legacy.id not in {item["note_id"] for item in plan["legacy_corrections"]}
+
+
 def test_evaluate_regression_case_marks_missing_expected_behavior_as_failed():
     from plugins.memory.readable_tree.regression import evaluate_regression_case
 

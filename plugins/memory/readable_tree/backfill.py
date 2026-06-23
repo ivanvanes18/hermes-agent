@@ -19,14 +19,17 @@ def _note_item(note: Any, *, reason: str, action: str) -> dict[str, Any]:
 
 def _has_behavior_link(note: Any, notes_by_id: dict[str, Any]) -> bool:
     note_id = str(getattr(note, "id", "") or "")
+    note_source_ids = {str(value) for value in (getattr(note, "source_ids", []) or []) if str(value).strip()}
+    link_tokens = {note_id, f"note:{note_id}", *note_source_ids}
+    link_tokens.discard("")
     if any(str(tag).startswith(("rule:", "case:")) for tag in (getattr(note, "tags", []) or [])):
         return True
     for candidate in notes_by_id.values():
         if getattr(candidate, "type", "") not in {"behavior_rule", "regression_case"}:
             continue
         body = str(getattr(candidate, "body", "") or "")
-        source_ids = [str(value) for value in (getattr(candidate, "source_ids", []) or [])]
-        if note_id in body or note_id in source_ids:
+        source_ids = {str(value) for value in (getattr(candidate, "source_ids", []) or []) if str(value).strip()}
+        if any(token in body for token in link_tokens) or (link_tokens & source_ids):
             return True
     return False
 
