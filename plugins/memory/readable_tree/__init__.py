@@ -219,7 +219,15 @@ class ReadableTreeMemoryProvider(MemoryProvider):
         if self._behavior_preflight_enabled:
             behavior_context = self.behavior_preflight(query, session_id=session_id)
         routing = resolve_branch(query, configured_project=self._project)
-        if self._retrieval_engine_v2_enabled:
+        if routing.branch == "ambiguous":
+            rows = []
+            retrieval_attempts = [{
+                "strategy": "routing_clarification_required",
+                "query": query,
+                "result_count": 0,
+                "routing": routing.to_dict(),
+            }]
+        elif self._retrieval_engine_v2_enabled:
             retrieval_project = self._project
             if not retrieval_project and routing.branch not in {"unknown", "ambiguous", "main"}:
                 retrieval_project = routing.branch
@@ -243,6 +251,8 @@ class ReadableTreeMemoryProvider(MemoryProvider):
             non_behavior_rows = [row for row in rows if row.get("type") not in {"behavior_rule", "regression_case"}]
             if non_behavior_rows:
                 rows = non_behavior_rows
+        if not rows and routing.branch == "unknown" and not behavior_context:
+            return ""
         timeline_events = self._store.timeline_snippets_for_note_ids(
             [str(row.get("id") or "") for row in rows],
             limit=5,

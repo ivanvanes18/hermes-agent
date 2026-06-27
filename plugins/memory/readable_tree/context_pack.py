@@ -327,10 +327,28 @@ def build_context_pack(
     memory classes are absent.  It trims selected note bodies first, then drops
     lowest-ranked notes if the caller's character budget is still exceeded.
     """
-    if not rows:
-        return ""
-
     max_chars = max(300, int(max_chars))
+    if not rows:
+        return _json_pack({
+            "version": version,
+            "query": query.strip(),
+            "routing_decision": routing_decision or {"branch": "unknown", "confidence": 0.0, "clarification_required": True},
+            "contract": _contract_policy(max_chars, routing_decision),
+            "selected_notes": [],
+            "included_items": [],
+            "excluded_items": [],
+            "excluded_notes_summary": _excluded_summary([], [], budget_excluded_count=0),
+            "source_ids": [],
+            "event_ids": [],
+            "conflicts": [],
+            "evolution_chains": [],
+            "timeline_snippets": [],
+            "sensitivity_policy": _sensitivity_policy(),
+            "runtime_policy": _runtime_policy(),
+            "retrieval_attempts_summary": _attempts_summary(retrieval_attempts or []),
+            "char_budget": {"max_chars": max_chars, "selected_count": 0, "candidate_count": 0},
+        })
+
     excluded_rows = [
         row for row in rows
         if str(row.get("status") or "") in {"archived", "superseded", "open_loop"}

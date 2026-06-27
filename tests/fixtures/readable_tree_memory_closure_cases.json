@@ -1,0 +1,41 @@
+[
+  {
+    "name": "hermes_memory_no_cross_project_contamination",
+    "query": "Hermes memory Context Pack closure",
+    "expected_branch": "hermes-agent",
+    "expected_source_ids": ["src-hermes-memory"],
+    "forbidden_source_ids": ["src-trading", "src-projectoriy"],
+    "max_pack_chars": 5000
+  },
+  {
+    "name": "projectoriy_vor_no_trading_contamination",
+    "query": "Проекторий ВОР XLSX импорт сметы",
+    "expected_branch": "projectoriy",
+    "expected_source_ids": ["src-projectoriy"],
+    "forbidden_source_ids": ["src-trading"],
+    "max_pack_chars": 5000
+  },
+  {
+    "name": "trading_no_projectoriy_contamination",
+    "query": "trading risk hyperliquid workflow",
+    "expected_branch": "trading",
+    "expected_source_ids": ["src-trading"],
+    "forbidden_source_ids": ["src-projectoriy"],
+    "max_pack_chars": 5000
+  },
+  {
+    "name": "ambiguous_branch_requires_clarification",
+    "query": "связать trading bot и ВОР импорт",
+    "expected_branch": "ambiguous",
+    "clarification_required": true,
+    "forbidden_source_ids": ["src-trading", "src-projectoriy"],
+    "max_pack_chars": 5000
+  },
+  {
+    "name": "behavior_preflight_rule_fires",
+    "query": "Проверь обещанный architecture baseline file",
+    "expected_branch": "hermes-agent",
+    "expect_behavior_rule_fired": true,
+    "max_pack_chars": 5000
+  }
+]

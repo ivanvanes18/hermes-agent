@@ -28,7 +28,7 @@ DEFAULT_PROJECT_REGISTRY: dict[str, dict[str, Any]] = {
         "denied_scopes": ["project:trading"],
     },
     "hermes-agent": {
-        "aliases": ["hermes", "readable_tree", "memory", "память", "context pack", "контекст", "agent memory"],
+        "aliases": ["hermes", "readable_tree", "memory", "память", "context pack", "контекст", "agent memory", "architecture", "архитектур"],
         "allowed_scopes": ["project:hermes-agent", "domain:agent-memory", "workflow:context-pack"],
         "denied_scopes": ["project:trading", "project:projectoriy"],
     },
