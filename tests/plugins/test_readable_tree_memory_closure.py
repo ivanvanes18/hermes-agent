@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 from agent.memory_manager import MemoryManager
@@ -179,3 +182,68 @@ def test_memory_closure_dream_cycle_is_proposal_only_then_selected_apply(tmp_pat
     assert applied["applied"][0]["event_ids"]
     assert after_apply[selected.id] == "active"
     assert after_apply[other.id] == "inbox"
+
+
+def test_memory_closure_fresh_process_tool_registry_and_context_pack(tmp_path):
+    script = r'''
+import json
+import sys
+from agent.memory_manager import MemoryManager
+from plugins.memory import load_memory_provider
+from plugins.memory.readable_tree.schemas import MemoryNote
+
+home = sys.argv[1]
+provider = load_memory_provider("readable_tree")
+assert provider is not None
+provider._config.update({
+    "agent": "reyna",
+    "retrieval_engine_v2": True,
+    "behavior_preflight": True,
+    "max_prefetch_notes": 6,
+    "max_prefetch_chars": 5000,
+})
+provider.initialize("fresh-closure", hermes_home=home, agent_identity="reyna")
+assert provider._store is not None
+provider._store.write_note(MemoryNote(
+    body="Fresh process Hermes memory closure uses bounded Context Pack contracts.",
+    type="decision",
+    agent="reyna",
+    project="hermes-agent",
+    scope="memory",
+    status="active",
+    importance="high",
+    source="fixture",
+    source_ids=["src-fresh-hermes"],
+    source_quality="direct",
+))
+provider._store.rebuild_index()
+mgr = MemoryManager()
+mgr.add_provider(provider)
+context = provider.prefetch("Hermes memory Context Pack closure", session_id="fresh-closure")
+print(json.dumps({
+    "provider_name": provider.name,
+    "has_backfill_tool": mgr.has_tool("readable_memory_apply_backfill"),
+    "has_context_pack": "readable_tree_context_pack" in context,
+    "has_routing_decision": "routing_decision" in context,
+    "has_source": "src-fresh-hermes" in context,
+}, ensure_ascii=False))
+'''
+    env = dict(os.environ)
+    env["PYTHONPATH"] = str(Path.cwd())
+    result = subprocess.run(
+        [sys.executable, "-c", script, str(tmp_path)],
+        cwd=Path.cwd(),
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    payload = json.loads(result.stdout)
+
+    assert payload == {
+        "provider_name": "readable_tree",
+        "has_backfill_tool": True,
+        "has_context_pack": True,
+        "has_routing_decision": True,
+        "has_source": True,
+    }
