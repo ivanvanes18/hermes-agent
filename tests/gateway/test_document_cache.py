@@ -155,6 +155,7 @@ class TestSupportedDocumentTypes:
             ".pdf",
             ".md",
             ".txt",
+            ".gge",
             ".zip",
             ".doc",
             ".docx",
