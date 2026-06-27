@@ -127,3 +127,55 @@ def test_memory_closure_runtime_tool_path(tmp_path):
 
     report = json.loads(mgr.handle_tool_call("readable_memory_run_regression_report", {"limit": 5}))
     assert report["unreviewed_cases"] == []
+
+
+def test_memory_closure_dream_cycle_is_proposal_only_then_selected_apply(tmp_path):
+    provider = ReadableTreeMemoryProvider({"agent": "reyna"})
+    provider.initialize("closure-dream", hermes_home=str(tmp_path), agent_identity="reyna")
+    assert provider._store is not None
+    selected = MemoryNote(
+        body="Dream closure sourced inbox fact.",
+        type="fact",
+        agent="reyna",
+        status="inbox",
+        source="fixture",
+        source_ids=["turn-dream-selected"],
+        source_quality="manual",
+    )
+    other = MemoryNote(
+        body="Dream closure other sourced inbox fact.",
+        type="fact",
+        agent="reyna",
+        status="inbox",
+        source="fixture",
+        source_ids=["turn-dream-other"],
+        source_quality="manual",
+    )
+    provider._store.write_note(selected)
+    provider._store.write_note(other)
+    mgr = MemoryManager()
+    mgr.add_provider(provider)
+
+    dream = json.loads(mgr.handle_tool_call("readable_memory_dream_cycle", {"limit": 10}))
+    after_dream = {note.id: note.status for note in provider._store.list_notes()}
+    preview = json.loads(mgr.handle_tool_call("readable_memory_apply_proposal", {
+        "run_id": dream["run_id"],
+        "note_ids": [selected.id],
+        "dry_run": True,
+    }))
+    after_preview = {note.id: note.status for note in provider._store.list_notes()}
+    applied = json.loads(mgr.handle_tool_call("readable_memory_apply_proposal", {
+        "run_id": dream["run_id"],
+        "note_ids": [selected.id],
+        "dry_run": False,
+    }))
+    after_apply = {note.id: note.status for note in provider._store.list_notes()}
+
+    assert dream["proposed"] >= 2
+    assert after_dream == {selected.id: "inbox", other.id: "inbox"}
+    assert preview["applied"][0]["note_id"] == selected.id
+    assert preview["changed_files"] == []
+    assert after_preview == after_dream
+    assert applied["applied"][0]["event_ids"]
+    assert after_apply[selected.id] == "active"
+    assert after_apply[other.id] == "inbox"

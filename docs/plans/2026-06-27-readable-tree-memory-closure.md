@@ -189,7 +189,7 @@ Do these only after Task 1–4 pass:
 
 1. [x] Outcome review closure: `review_behavior_outcome` now records `rule_used_in_answer`, links related active regression cases, and closes them in the regression report through `case:<id>` tags.
 2. [x] Provenance closure: high-risk active `behavior_rule` / `regression_case` / high-importance decision-like notes missing `event_ids` are detected first in dry-run, and selected-only `readable_memory_apply_backfill` can mark/link them without bulk mutation.
-3. [ ] Dream Cycle closure: prove proposal/apply separation with seeded inbox/duplicate/stale notes and no silent promotion.
+3. [x] Dream Cycle closure: MemoryManager closure test proves Dream Cycle only writes proposal/audit artifacts, dry-run apply mutates nothing, and selected apply promotes only explicitly selected notes.
 4. [ ] Fresh-session closure: restart/fresh Hermes session dogfood and compare Context Pack output.
 
 The memory architecture is considered closed only when these gates have tool-backed evidence, not when the docs say it is closed.
