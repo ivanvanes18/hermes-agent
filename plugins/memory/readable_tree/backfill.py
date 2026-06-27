@@ -17,21 +17,75 @@ def _note_item(note: Any, *, reason: str, action: str) -> dict[str, Any]:
     }
 
 
+def _note_ref_tokens(note_id: str) -> set[str]:
+    """Return the common textual forms used to point at a note."""
+    clean_id = str(note_id or "").strip()
+    if not clean_id:
+        return set()
+    return {clean_id, f"note:{clean_id}"}
+
+
+def _body_mentions_note(body: str, note_id: str) -> bool:
+    tokens = _note_ref_tokens(note_id)
+    return bool(tokens and any(token in body for token in tokens))
+
+
 def _has_behavior_link(note: Any, notes_by_id: dict[str, Any]) -> bool:
+    """Return whether a correction is already linked to a behavior chain.
+
+    Behavioral links have existed in several historical shapes:
+    - old tags such as ``rule:<id>`` / ``case:<id>`` on the correction;
+    - behavior_rule/regression_case notes linking back through body/source_ids;
+    - all three notes sharing the same ``behavioral_chain_created`` event_id;
+    - operator quality-pass notes linking outward from the correction body or
+      correction ``source_ids`` as ``note:<behavior_rule_id>`` and
+      ``note:<regression_case_id>``.
+
+    Treat the correction as covered when at least one behavioral artifact is
+    linked. Some older chains stored only a behavior_rule link, and backfill
+    should avoid duplicating those chains.
+    """
     note_id = str(getattr(note, "id", "") or "")
+    body = str(getattr(note, "body", "") or "")
+    tags = {str(tag) for tag in (getattr(note, "tags", []) or []) if str(tag).strip()}
     note_source_ids = {str(value) for value in (getattr(note, "source_ids", []) or []) if str(value).strip()}
-    link_tokens = {note_id, f"note:{note_id}", *note_source_ids}
+    note_event_ids = {str(value) for value in (getattr(note, "event_ids", []) or []) if str(value).strip()}
+    link_tokens = _note_ref_tokens(note_id) | note_source_ids
     link_tokens.discard("")
-    if any(str(tag).startswith(("rule:", "case:")) for tag in (getattr(note, "tags", []) or [])):
-        return True
+
+    linked_types: set[str] = set()
+
+    for tag in tags:
+        if tag.startswith("rule:"):
+            linked_types.add("behavior_rule")
+        if tag.startswith("case:"):
+            linked_types.add("regression_case")
+
     for candidate in notes_by_id.values():
-        if getattr(candidate, "type", "") not in {"behavior_rule", "regression_case"}:
+        candidate_type = str(getattr(candidate, "type", "") or "")
+        if candidate_type not in {"behavior_rule", "regression_case"}:
             continue
-        body = str(getattr(candidate, "body", "") or "")
-        source_ids = {str(value) for value in (getattr(candidate, "source_ids", []) or []) if str(value).strip()}
-        if any(token in body for token in link_tokens) or (link_tokens & source_ids):
-            return True
-    return False
+        candidate_id = str(getattr(candidate, "id", "") or "")
+        candidate_body = str(getattr(candidate, "body", "") or "")
+        candidate_source_ids = {
+            str(value) for value in (getattr(candidate, "source_ids", []) or []) if str(value).strip()
+        }
+        candidate_event_ids = {
+            str(value) for value in (getattr(candidate, "event_ids", []) or []) if str(value).strip()
+        }
+
+        candidate_links_back = bool(
+            (link_tokens and (any(token in candidate_body for token in link_tokens) or (link_tokens & candidate_source_ids)))
+            or (note_event_ids and (note_event_ids & candidate_event_ids))
+        )
+        correction_links_out = bool(
+            candidate_id and (_body_mentions_note(body, candidate_id) or (_note_ref_tokens(candidate_id) & note_source_ids))
+        )
+
+        if candidate_links_back or correction_links_out:
+            linked_types.add(candidate_type)
+
+    return bool(linked_types)
 
 
 def plan_backfill(store: Any, limit: int = 50, include_archived: bool = False, dry_run: bool = True) -> dict[str, Any]:

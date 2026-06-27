@@ -337,6 +337,128 @@ def test_behavioral_note_types_route_to_dedicated_directories(tmp_path):
     assert "/outcome_reviews/" in review.path
 
 
+def test_backfill_accepts_quality_pass_correction_outbound_behavior_links(tmp_path):
+    from plugins.memory.readable_tree.backfill import plan_backfill
+
+    store = ReadableMemoryStore(tmp_path, agent="reyna")
+    correction = MemoryNote(
+        id="corr-1",
+        body="""Correction event: keep Excel template formatting.
+
+Behavior chain links:
+- behavior_rule: rule-1
+- regression_case: case-1""",
+        type="correction",
+        agent="reyna",
+        status="active",
+        source="correction_event",
+        source_ids=["note:rule-1", "note:case-1"],
+        source_quality="manual",
+        event_ids=["evt-1"],
+    )
+    rule = MemoryNote(
+        id="rule-1",
+        body="Behavior rule: preserve template formatting.",
+        type="behavior_rule",
+        agent="reyna",
+        status="active",
+        source="correction_event",
+        source_quality="manual",
+        event_ids=["evt-1"],
+    )
+    case = MemoryNote(
+        id="case-1",
+        body="Regression case:\nlinked_rule_id: rule-1",
+        type="regression_case",
+        agent="reyna",
+        status="active",
+        source="correction_event",
+        source_quality="manual",
+        event_ids=["evt-1"],
+    )
+    for note in (correction, rule, case):
+        store.write_note(note)
+
+    plan = plan_backfill(store, include_archived=False, dry_run=True)
+
+    assert not any(item["note_id"] == "corr-1" for item in plan["legacy_corrections"])
+
+
+def test_backfill_accepts_behavior_chain_shared_event_ids(tmp_path):
+    from plugins.memory.readable_tree.backfill import plan_backfill
+
+    store = ReadableMemoryStore(tmp_path, agent="reyna")
+    event_id = "evt-shared"
+    correction = MemoryNote(
+        id="corr-shared",
+        body="Correction event: deliver legacy xls.",
+        type="correction",
+        agent="reyna",
+        status="active",
+        source="correction_event",
+        source_quality="manual",
+        event_ids=[event_id],
+    )
+    rule = MemoryNote(
+        id="rule-shared",
+        body="Behavior rule: deliver legacy xls.",
+        type="behavior_rule",
+        agent="reyna",
+        status="active",
+        source="correction_event",
+        source_quality="manual",
+        event_ids=[event_id],
+    )
+    case = MemoryNote(
+        id="case-shared",
+        body="Regression case:\nlinked_rule_id: rule-shared",
+        type="regression_case",
+        agent="reyna",
+        status="active",
+        source="correction_event",
+        source_quality="manual",
+        event_ids=[event_id],
+    )
+    for note in (correction, rule, case):
+        store.write_note(note)
+
+    plan = plan_backfill(store, include_archived=False, dry_run=True)
+
+    assert not any(item["note_id"] == "corr-shared" for item in plan["legacy_corrections"])
+
+
+def test_backfill_accepts_one_sided_legacy_behavior_rule_links(tmp_path):
+    from plugins.memory.readable_tree.backfill import plan_backfill
+
+    store = ReadableMemoryStore(tmp_path, agent="reyna")
+    correction = MemoryNote(
+        id="corr-one-sided",
+        body="Correction event: only a rule exists.",
+        type="correction",
+        agent="reyna",
+        status="active",
+        source="correction_event",
+        source_quality="manual",
+        event_ids=["evt-one-sided"],
+    )
+    rule = MemoryNote(
+        id="rule-one-sided",
+        body="Behavior rule: references corr-one-sided.",
+        type="behavior_rule",
+        agent="reyna",
+        status="active",
+        source="correction_event",
+        source_quality="manual",
+        event_ids=["evt-one-sided"],
+    )
+    store.write_note(correction)
+    store.write_note(rule)
+
+    plan = plan_backfill(store, include_archived=False, dry_run=True)
+
+    assert not any(item["note_id"] == "corr-one-sided" for item in plan["legacy_corrections"])
+
+
 def test_behavioral_chain_classifies_wrong_task_layer_and_links_notes():
     from plugins.memory.readable_tree.behavioral import build_behavioral_chain
 
