@@ -17,6 +17,7 @@ from .schemas import MemoryNote
 from .context_pack import build_behavior_preflight_pack, build_context_pack
 from .extractor import classify_sensitivity
 from .retrieval import retrieve_context_candidates
+from .routing import resolve_branch
 from .semantic import build_semantic_candidate_provider
 from .store import ReadableMemoryStore
 
@@ -217,12 +218,16 @@ class ReadableTreeMemoryProvider(MemoryProvider):
         behavior_context = ""
         if self._behavior_preflight_enabled:
             behavior_context = self.behavior_preflight(query, session_id=session_id)
+        routing = resolve_branch(query, configured_project=self._project)
         if self._retrieval_engine_v2_enabled:
+            retrieval_project = self._project
+            if not retrieval_project and routing.branch not in {"unknown", "ambiguous", "main"}:
+                retrieval_project = routing.branch
             retrieval_result = retrieve_context_candidates(
                 self._store,
                 query,
                 agent=self._agent,
-                project=self._project,
+                project=retrieval_project,
                 session_id=session_id,
                 limit=self._max_prefetch_notes,
                 include_semantic=self._semantic_index_enabled,
@@ -230,7 +235,7 @@ class ReadableTreeMemoryProvider(MemoryProvider):
                 semantic_provider=self._semantic_candidate_provider,
             )
             rows = retrieval_result.rows
-            retrieval_attempts = [{"attempt": "retrieval_engine_v2", **retrieval_result.provenance}]
+            retrieval_attempts = [{"attempt": "retrieval_engine_v2", "routing": routing.to_dict(), **retrieval_result.provenance}]
         else:
             rows = self._prefetch_rows(query, session_id=session_id)
             retrieval_attempts = self._store.index.last_search_attempts
@@ -251,6 +256,7 @@ class ReadableTreeMemoryProvider(MemoryProvider):
             max_chars=normal_budget,
             retrieval_attempts=retrieval_attempts,
             timeline_events=timeline_events,
+            routing_decision=routing.to_dict(),
         )
         if rows and normal_context and len(normal_context) >= normal_budget:
             self._store.log_metric(
