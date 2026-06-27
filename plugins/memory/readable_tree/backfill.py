@@ -5,6 +5,28 @@ from __future__ import annotations
 from typing import Any
 
 
+HIGH_RISK_PROVENANCE_TYPES = {
+    "behavior_rule",
+    "regression_case",
+    "decision",
+    "constraint",
+    "requirement",
+}
+
+
+def _is_high_risk_provenance_note(note: Any) -> bool:
+    note_type = str(getattr(note, "type", "") or "")
+    importance = str(getattr(note, "importance", "") or "")
+    status = str(getattr(note, "status", "") or "")
+    if status != "active":
+        return False
+    if note_type in {"behavior_rule", "regression_case"}:
+        return True
+    if note_type in HIGH_RISK_PROVENANCE_TYPES and importance in {"high", "critical"}:
+        return True
+    return False
+
+
 def _note_item(note: Any, *, reason: str, action: str) -> dict[str, Any]:
     return {
         "action_id": f"{action}:{getattr(note, 'id', '')}",
@@ -104,6 +126,7 @@ def plan_backfill(store: Any, limit: int = 50, include_archived: bool = False, d
     legacy_corrections: list[dict[str, Any]] = []
     weak_provenance: list[dict[str, Any]] = []
     missing_event_ids: list[dict[str, Any]] = []
+    high_risk_missing_event_ids: list[dict[str, Any]] = []
 
     for note in considered:
         note_type = str(getattr(note, "type", "") or "")
@@ -125,9 +148,16 @@ def plan_backfill(store: Any, limit: int = 50, include_archived: bool = False, d
                 )
 
         if not list(getattr(note, "event_ids", []) or []):
-            missing_event_ids.append(
-                _note_item(note, reason="note has no event_ids provenance links", action="link_existing_events_or_mark_legacy")
-            )
+            item = _note_item(note, reason="note has no event_ids provenance links", action="link_existing_events_or_mark_legacy")
+            missing_event_ids.append(item)
+            if _is_high_risk_provenance_note(note):
+                high_risk_missing_event_ids.append(
+                    _note_item(
+                        note,
+                        reason="high-risk active memory has no event_ids provenance links",
+                        action="mark_high_risk_legacy_or_link_existing_events",
+                    )
+                )
 
     for note in notes:
         if note in considered:
@@ -140,7 +170,8 @@ def plan_backfill(store: Any, limit: int = 50, include_archived: bool = False, d
     legacy_corrections = legacy_corrections[:max_items]
     weak_provenance = weak_provenance[:max_items]
     missing_event_ids = missing_event_ids[:max_items]
-    proposed_actions = (legacy_corrections + weak_provenance + missing_event_ids)[:max_items]
+    high_risk_missing_event_ids = high_risk_missing_event_ids[:max_items]
+    proposed_actions = (high_risk_missing_event_ids + legacy_corrections + weak_provenance + missing_event_ids)[:max_items]
 
     return {
         "dry_run": dry_run,
@@ -150,6 +181,7 @@ def plan_backfill(store: Any, limit: int = 50, include_archived: bool = False, d
         "legacy_corrections": legacy_corrections,
         "weak_provenance": weak_provenance,
         "missing_event_ids": missing_event_ids,
+        "high_risk_missing_event_ids": high_risk_missing_event_ids,
         "proposed_actions": proposed_actions,
         "count": len(proposed_actions),
     }

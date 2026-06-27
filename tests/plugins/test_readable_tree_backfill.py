@@ -1,3 +1,5 @@
+from agent.memory_manager import MemoryManager
+from plugins.memory.readable_tree import ReadableTreeMemoryProvider
 from plugins.memory.readable_tree.backfill import apply_backfill_actions, plan_backfill
 from plugins.memory.readable_tree.schemas import MemoryNote
 from plugins.memory.readable_tree.store import ReadableMemoryStore
@@ -106,6 +108,7 @@ def test_plan_backfill_detects_legacy_corrections_weak_provenance_and_missing_ev
     assert [item["note_id"] for item in report["legacy_corrections"]] == [legacy_correction.id]
     assert [item["note_id"] for item in report["weak_provenance"]] == [weak_provenance.id]
     assert set(item["note_id"] for item in report["missing_event_ids"]) == {legacy_correction.id, missing_events.id, archived.id}
+    assert report["high_risk_missing_event_ids"] == []
 
     active_only_ids = {action["note_id"] for action in report["proposed_actions"]}
     assert legacy_correction.id in active_only_ids
@@ -130,3 +133,88 @@ def test_plan_backfill_include_archived_adds_archived_weak_provenance(tmp_path):
 
     assert default_report["weak_provenance"] == []
     assert [item["note_id"] for item in include_report["weak_provenance"]] == [archived.id]
+
+
+def test_plan_backfill_prioritizes_high_risk_active_notes_missing_event_ids(tmp_path):
+    store = ReadableMemoryStore(tmp_path, agent="reyna")
+    rule = MemoryNote(
+        body="Before claiming done, run verification.",
+        type="behavior_rule",
+        agent="reyna",
+        status="active",
+        tags=["behavioral-memory", "mistake:false_completion"],
+        source="correction",
+        source_ids=["turn-correction"],
+        source_quality="manual",
+        event_ids=[],
+    )
+    decision = MemoryNote(
+        body="Memory architecture must use bounded Context Packs.",
+        type="decision",
+        agent="reyna",
+        status="active",
+        importance="high",
+        source="session",
+        source_ids=["turn-decision"],
+        source_quality="manual",
+        event_ids=[],
+    )
+    low = MemoryNote(
+        body="Low-impact fact without event ids.",
+        type="fact",
+        agent="reyna",
+        status="active",
+        importance="low",
+        source="session",
+        source_quality="manual",
+        event_ids=[],
+    )
+    for note in [low, decision, rule]:
+        store.write_note(note)
+
+    report = plan_backfill(store, limit=20)
+
+    high_risk_ids = [item["note_id"] for item in report["high_risk_missing_event_ids"]]
+    proposed = report["proposed_actions"]
+    assert set(high_risk_ids) == {decision.id, rule.id}
+    assert {item["note_id"] for item in proposed[:2]} == set(high_risk_ids)
+    assert all(item["proposed_action"] == "mark_high_risk_legacy_or_link_existing_events" for item in proposed[:2])
+
+
+def test_backfill_tool_path_exposes_plan_and_selected_apply(tmp_path):
+    provider = ReadableTreeMemoryProvider({"agent": "reyna"})
+    provider.initialize("backfill-tool", hermes_home=str(tmp_path), agent_identity="reyna")
+    assert provider._store is not None
+    rule = MemoryNote(
+        body="Before claiming done, run verification.",
+        type="behavior_rule",
+        agent="reyna",
+        status="active",
+        tags=["behavioral-memory", "mistake:false_completion"],
+        source="correction",
+        source_ids=["turn-correction"],
+        source_quality="manual",
+        event_ids=[],
+    )
+    provider._store.write_note(rule)
+    mgr = MemoryManager()
+    mgr.add_provider(provider)
+
+    plan = __import__("json").loads(mgr.handle_tool_call("readable_memory_plan_backfill", {"limit": 20}))
+    action_id = plan["high_risk_missing_event_ids"][0]["action_id"]
+    preview = __import__("json").loads(mgr.handle_tool_call("readable_memory_apply_backfill", {
+        "action_ids": [action_id],
+        "dry_run": True,
+    }))
+    applied = __import__("json").loads(mgr.handle_tool_call("readable_memory_apply_backfill", {
+        "action_ids": [action_id],
+        "dry_run": False,
+    }))
+    notes = {note.id: note for note in provider._store.list_notes()}
+
+    assert mgr.has_tool("readable_memory_apply_backfill")
+    assert preview["dry_run"] is True
+    assert preview["changed_files"] == []
+    assert applied["applied"][0]["note_id"] == rule.id
+    assert "backfill:mark_high_risk_legacy_or_link_existing_events" in notes[rule.id].tags
+    assert notes[rule.id].event_ids

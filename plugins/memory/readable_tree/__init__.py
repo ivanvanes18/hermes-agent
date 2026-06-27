@@ -452,6 +452,18 @@ class ReadableTreeMemoryProvider(MemoryProvider):
                 },
             },
             {
+                "name": "readable_memory_apply_backfill",
+                "description": "Apply explicitly selected safe readable_tree backfill markers. Default is dry-run; mutating calls require action_ids.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "action_ids": {"type": "array", "items": {"type": "string"}},
+                        "dry_run": {"type": "boolean"},
+                    },
+                    "required": ["action_ids"],
+                },
+            },
+            {
                 "name": "readable_memory_run_regression_report",
                 "description": "Build a deterministic report of active behavioral regression cases needing outcome review. Never calls an LLM or mutates notes by default.",
                 "parameters": {
@@ -682,6 +694,17 @@ class ReadableTreeMemoryProvider(MemoryProvider):
                         self._store,
                         limit=int(args.get("limit") or 50),
                         include_archived=bool(args.get("include_archived")),
+                        dry_run=bool(args.get("dry_run", True)),
+                    ),
+                    ensure_ascii=False,
+                )
+            if tool_name == "readable_memory_apply_backfill":
+                from .backfill import apply_backfill_actions
+
+                return json.dumps(
+                    apply_backfill_actions(
+                        self._store,
+                        action_ids=list(args.get("action_ids") or []),
                         dry_run=bool(args.get("dry_run", True)),
                     ),
                     ensure_ascii=False,

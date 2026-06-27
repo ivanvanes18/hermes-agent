@@ -188,8 +188,8 @@ git push origin ivan/prod
 Do these only after Task 1–4 pass:
 
 1. [x] Outcome review closure: `review_behavior_outcome` now records `rule_used_in_answer`, links related active regression cases, and closes them in the regression report through `case:<id>` tags.
-2. [ ] Provenance closure: repair or mark legacy only the high-risk active rules/decisions missing `event_ids`; do not bulk mutate all notes.
-3. Dream Cycle closure: prove proposal/apply separation with seeded inbox/duplicate/stale notes and no silent promotion.
-4. Fresh-session closure: restart/fresh Hermes session dogfood and compare Context Pack output.
+2. [x] Provenance closure: high-risk active `behavior_rule` / `regression_case` / high-importance decision-like notes missing `event_ids` are detected first in dry-run, and selected-only `readable_memory_apply_backfill` can mark/link them without bulk mutation.
+3. [ ] Dream Cycle closure: prove proposal/apply separation with seeded inbox/duplicate/stale notes and no silent promotion.
+4. [ ] Fresh-session closure: restart/fresh Hermes session dogfood and compare Context Pack output.
 
 The memory architecture is considered closed only when these gates have tool-backed evidence, not when the docs say it is closed.
