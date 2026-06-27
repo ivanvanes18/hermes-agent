@@ -180,6 +180,51 @@ def _excluded_summary(selected_rows: list[dict[str, Any]], excluded_rows: list[d
     }
 
 
+def _trigger_terms(row: dict[str, Any]) -> list[str]:
+    terms: list[str] = []
+    tags_text = str(row.get("tags") or "")
+    for match in re.finditer(r"trigger:([^,]+?)(?=\s+trigger:|$)", tags_text):
+        term = match.group(1).strip()
+        if term and term not in terms:
+            terms.append(term)
+    if terms:
+        return terms
+    for tag in _csv_values(tags_text.replace(" ", ",")):
+        if tag.startswith("trigger:"):
+            term = tag.removeprefix("trigger:").strip()
+            if term and term not in terms:
+                terms.append(term)
+    return terms
+
+
+def _matched_trigger_features(query: str, row: dict[str, Any]) -> list[str]:
+    query_cf = str(query or "").casefold()
+    matches: list[str] = []
+    for term in _trigger_terms(row):
+        if term.casefold() in query_cf:
+            matches.append(term)
+    return matches
+
+
+def _behavior_trace(query: str, rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "rule_id": row.get("id"),
+            "rule_fired": True,
+            "rule_used_in_answer": None,
+            "outcome_status": "unreviewed",
+            "trigger_query": query.strip(),
+            "trigger_features": _trigger_terms(row),
+            "matched_features": _matched_trigger_features(query, row),
+            "mistake_classes": [
+                match.group(1)
+                for match in re.finditer(r"mistake:([A-Za-z0-9_]+)", str(row.get("tags") or ""))
+            ],
+        }
+        for row in rows
+    ]
+
+
 def _behavior_preflight_pack(query: str, rows: list[dict[str, Any]], *, max_chars: int) -> str:
     return "\n".join([
         "## Readable Tree Memory",
@@ -190,6 +235,7 @@ def _behavior_preflight_pack(query: str, rows: list[dict[str, Any]], *, max_char
                 "version": "readable_tree_behavior_preflight_v1",
                 "query": query.strip(),
                 "rules": [_note_record(row) for row in rows],
+                "preflight_trace": _behavior_trace(query, rows),
                 "mistake_classes": sorted({
                     match.group(1)
                     for row in rows
@@ -198,6 +244,8 @@ def _behavior_preflight_pack(query: str, rows: list[dict[str, Any]], *, max_char
                 "runtime_contract": {
                     "use_before_answering": True,
                     "apply_only_if_trigger_matches_current_task": True,
+                    "log_rule_fired": True,
+                    "record_outcome_after_task_when_possible": True,
                     "state_applied_rule_in_reasoning_summary": False,
                     "do_not_quote_sensitive_sources": True,
                 },
@@ -233,7 +281,34 @@ def build_behavior_preflight_pack(query: str, rows: list[dict[str, Any]], *, max
     rendered = _behavior_preflight_pack(query, behavior_rows[:1], max_chars=max_chars)
     if len(rendered) <= max_chars:
         return rendered
-    return rendered[:max_chars]
+    compact_rows: list[dict[str, Any]] = []
+    for row in behavior_rows[:1]:
+        compact = dict(row)
+        compact["body"] = str(compact.get("body") or "")[:160]
+        compact_rows.append(compact)
+    rendered = _behavior_preflight_pack(query, compact_rows, max_chars=max_chars)
+    if len(rendered) <= max_chars:
+        return rendered
+    minimal = {
+        "version": "readable_tree_behavior_preflight_v1",
+        "query": query.strip(),
+        "rules": [{"id": row.get("id"), "type": row.get("type"), "status": row.get("status")} for row in compact_rows],
+        "preflight_trace": _behavior_trace(query, compact_rows),
+        "runtime_contract": {
+            "use_before_answering": True,
+            "apply_only_if_trigger_matches_current_task": True,
+            "log_rule_fired": True,
+            "record_outcome_after_task_when_possible": True,
+        },
+        "char_budget": {"max_chars": max_chars, "selected_count": len(compact_rows), "candidate_count": len(behavior_rows)},
+    }
+    return "\n".join([
+        "## Readable Tree Memory",
+        "Behavior Preflight Pack v1: active behavior rules from source-backed corrections.",
+        "```json",
+        json.dumps(minimal, ensure_ascii=False, sort_keys=True, separators=(",", ":")),
+        "```",
+    ])
 
 
 def build_context_pack(

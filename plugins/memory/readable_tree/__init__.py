@@ -289,7 +289,11 @@ class ReadableTreeMemoryProvider(MemoryProvider):
                 "behavior_preflight_matches",
                 value=len(rows),
                 session_id=session_id,
-                metadata={"query": query[:200]},
+                metadata={
+                    "query": query[:200],
+                    "matched_rule_ids": [str(row.get("id") or "") for row in rows if row.get("id")],
+                    "rule_fired": True,
+                },
             )
         behavior_budget = max(700, min(self._max_prefetch_chars // 2, 1200))
         return build_behavior_preflight_pack(query, rows, max_chars=behavior_budget)

@@ -1,0 +1,53 @@
+{
+  "schema_version": "context_pack_contract_v1",
+  "required_top_level_fields": [
+    "version",
+    "query",
+    "routing_decision",
+    "contract",
+    "selected_notes",
+    "included_items",
+    "excluded_items",
+    "excluded_notes_summary",
+    "source_ids",
+    "event_ids",
+    "sensitivity_policy",
+    "runtime_policy",
+    "char_budget"
+  ],
+  "required_routing_fields": [
+    "branch",
+    "confidence",
+    "matched_aliases",
+    "allowed_scopes",
+    "denied_scopes",
+    "clarification_required",
+    "evidence"
+  ],
+  "required_included_item_fields": [
+    "note_id",
+    "authority",
+    "scope",
+    "project",
+    "source_ids",
+    "event_ids",
+    "why_included"
+  ],
+  "required_excluded_item_fields": [
+    "note_id",
+    "reason",
+    "status",
+    "type",
+    "scope",
+    "project"
+  ],
+  "allowed_exclusion_reasons": [
+    "archived",
+    "superseded",
+    "open_loop",
+    "sensitive",
+    "secret_ref",
+    "over_budget",
+    "policy"
+  ]
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "name": "hermes_memory_routes_to_hermes_agent",
+    "query": "Hermes memory Context Pack Contract",
+    "expected_branch": "hermes-agent",
+    "clarification_required": false,
+    "must_allow": "project:hermes-agent"
+  },
+  {
+    "name": "projectoriy_vor_routes_to_projectoriy",
+    "query": "Проекторий ВОР XLSX импорт для сметы",
+    "expected_branch": "projectoriy",
+    "clarification_required": false,
+    "must_allow": "project:projectoriy"
+  },
+  {
+    "name": "trading_routes_to_trading",
+    "query": "trading risk hyperliquid strategy",
+    "expected_branch": "trading",
+    "clarification_required": false,
+    "must_allow": "project:trading"
+  },
+  {
+    "name": "unknown_does_not_fallback_main",
+    "query": "как мы это решили раньше",
+    "expected_branch": "unknown",
+    "clarification_required": true
+  },
+  {
+    "name": "mixed_trading_and_vor_requires_clarification",
+    "query": "связать trading bot и ВОР импорт",
+    "expected_branch": "ambiguous",
+    "clarification_required": true
+  }
+]
