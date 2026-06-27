@@ -112,3 +112,18 @@ def test_memory_closure_runtime_tool_path(tmp_path):
     }))
     assert "preflight_trace" in preflight["context"]
     assert "wrong_task_layer" in preflight["context"]
+    rule_id = preflight["context"].split('"rule_id":"', 1)[1].split('"', 1)[0]
+
+    outcome = json.loads(mgr.handle_tool_call("readable_memory_review_outcome", {
+        "rule_id": rule_id,
+        "outcome": "fixed",
+        "evidence": "Runtime tool path retrieved the rule and recorded outcome evidence.",
+        "rule_used_in_answer": True,
+        "session_id": "closure-runtime",
+    }))
+    assert outcome["success"] is True
+    assert outcome["rule_used_in_answer"] is True
+    assert outcome["related_case_ids"]
+
+    report = json.loads(mgr.handle_tool_call("readable_memory_run_regression_report", {"limit": 5}))
+    assert report["unreviewed_cases"] == []

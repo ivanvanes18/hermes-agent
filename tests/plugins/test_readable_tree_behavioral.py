@@ -105,6 +105,38 @@ def test_store_regression_report_tool_surface_is_dry_run_and_non_mutating(tmp_pa
     assert result["changed_files"] == []
 
 
+def test_behavior_outcome_review_links_related_regression_case_and_closes_report(tmp_path):
+    store = ReadableMemoryStore(tmp_path, agent="reyna")
+    chain = store.record_correction(
+        "Ты должна была проверить обещанный architecture file before baseline analysis.",
+        project="hermes-agent",
+        source_id="turn-outcome",
+        session_id="s1",
+    )
+    rule_id = chain["note_ids"][1]
+    case_id = chain["note_ids"][2]
+
+    before = store.run_regression_report(limit=5, dry_run=True)
+    assert [item["case_id"] for item in before["unreviewed_cases"]] == [case_id]
+
+    outcome = store.review_behavior_outcome(
+        rule_id,
+        "fixed",
+        "Preflight retrieved the rule, I checked the promised file, and cited tool evidence.",
+        session_id="s1",
+        rule_used_in_answer=True,
+    )
+
+    review_note = next(note for note in store.list_notes() if note.id == outcome["note_id"])
+    assert f"rule:{rule_id}" in review_note.tags
+    assert f"case:{case_id}" in review_note.tags
+    assert "rule_used_in_answer: true" in review_note.body
+    assert case_id in review_note.body
+    after = store.run_regression_report(limit=5, dry_run=True)
+    assert after["unreviewed_cases"] == []
+    assert outcome["related_case_ids"] == [case_id]
+
+
 def test_parse_regression_case_extracts_required_fields():
     case = parse_regression_case(REGRESSION_BODY)
 

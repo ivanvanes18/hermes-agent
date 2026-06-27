@@ -280,11 +280,29 @@ class ReadableMemoryStore:
         evidence: str,
         *,
         session_id: str = "",
+        rule_used_in_answer: bool | None = None,
     ) -> dict[str, Any]:
-        """Write an outcome review for a behavior rule."""
+        """Write an outcome review for a behavior rule and linked regression cases."""
         self.initialize()
         allowed = {"fixed", "repeated", "unclear", "superseded"}
         normalized = outcome if outcome in allowed else "unclear"
+        notes = self.list_notes()
+        rule = next((candidate for candidate in notes if candidate.id == rule_id and candidate.type == "behavior_rule"), None)
+        rule_sources = set(rule.source_ids if rule else [])
+        rule_mistakes = {tag for tag in (rule.tags if rule else []) if tag.startswith("mistake:")}
+        related_cases = []
+        for candidate in notes:
+            if candidate.type != "regression_case" or candidate.status != "active":
+                continue
+            candidate_sources = set(candidate.source_ids or [])
+            candidate_mistakes = {tag for tag in candidate.tags if tag.startswith("mistake:")}
+            if (rule_sources and candidate_sources & rule_sources) or (rule_mistakes and candidate_mistakes & rule_mistakes):
+                related_cases.append(candidate)
+        related_case_ids = [case.id for case in related_cases]
+        tags = ["behavioral-memory", f"outcome:{normalized}", f"rule:{rule_id}"]
+        tags.extend(f"case:{case_id}" for case_id in related_case_ids)
+        used_text = "unknown" if rule_used_in_answer is None else str(bool(rule_used_in_answer)).lower()
+        related_text = ", ".join(related_case_ids) if related_case_ids else "none"
         note = MemoryNote(
             type="outcome_review",
             agent=self.agent,
@@ -293,12 +311,14 @@ class ReadableMemoryStore:
             confidence="reported",
             importance="high" if normalized == "repeated" else "medium",
             sensitivity="internal",
-            tags=["behavioral-memory", f"outcome:{normalized}", f"rule:{rule_id}"],
+            tags=tags,
             source="outcome_review",
             source_ids=[rule_id],
             source_quality="manual",
             body=(
-                f"Outcome review for behavior rule {rule_id}: {normalized}. "
+                f"Outcome review for behavior rule {rule_id}: {normalized}.\n"
+                f"rule_used_in_answer: {used_text}\n"
+                f"related_regression_cases: {related_text}\n"
                 f"Evidence: {evidence}"
             ),
         )
@@ -306,16 +326,37 @@ class ReadableMemoryStore:
         event = self.append_event(
             "behavior_outcome_reviewed",
             source_ids=[rule_id],
-            note_ids=[note.id],
-            payload={"rule_id": rule_id, "outcome": normalized},
+            note_ids=[note.id, *related_case_ids],
+            payload={
+                "rule_id": rule_id,
+                "outcome": normalized,
+                "rule_used_in_answer": rule_used_in_answer,
+                "related_case_ids": related_case_ids,
+            },
             session_id=session_id,
         )
         note.event_ids.append(event["id"])
         self._rewrite_note(note)
         self.rebuild_index()
         if normalized in {"fixed", "repeated"}:
-            self.log_metric(f"outcome_{normalized}", session_id=session_id, metadata={"rule_id": rule_id, "note_id": note.id})
-        return {"success": True, "outcome": normalized, "note_id": note.id, "event_id": event["id"]}
+            self.log_metric(
+                f"outcome_{normalized}",
+                session_id=session_id,
+                metadata={
+                    "rule_id": rule_id,
+                    "note_id": note.id,
+                    "rule_used_in_answer": rule_used_in_answer,
+                    "related_case_ids": related_case_ids,
+                },
+            )
+        return {
+            "success": True,
+            "outcome": normalized,
+            "rule_used_in_answer": rule_used_in_answer,
+            "related_case_ids": related_case_ids,
+            "note_id": note.id,
+            "event_id": event["id"],
+        }
 
     def iter_events(self) -> list[dict[str, Any]]:
         if not self.events_path.exists():

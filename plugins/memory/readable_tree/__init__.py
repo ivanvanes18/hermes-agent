@@ -421,6 +421,7 @@ class ReadableTreeMemoryProvider(MemoryProvider):
                         "rule_id": {"type": "string"},
                         "outcome": {"type": "string", "enum": ["fixed", "repeated", "unclear", "superseded"]},
                         "evidence": {"type": "string"},
+                        "rule_used_in_answer": {"type": "boolean"},
                         "session_id": {"type": "string"},
                     },
                     "required": ["rule_id", "outcome", "evidence"],
@@ -657,6 +658,7 @@ class ReadableTreeMemoryProvider(MemoryProvider):
                         str(args.get("outcome") or "unclear"),
                         str(args.get("evidence") or ""),
                         session_id=str(args.get("session_id") or kwargs.get("session_id") or ""),
+                        rule_used_in_answer=args.get("rule_used_in_answer") if "rule_used_in_answer" in args else None,
                     ),
                     ensure_ascii=False,
                 )

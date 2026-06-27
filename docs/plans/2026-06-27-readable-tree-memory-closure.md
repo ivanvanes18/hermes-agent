@@ -187,8 +187,8 @@ git push origin ivan/prod
 
 Do these only after Task 1–4 pass:
 
-1. Outcome review closure: auto/report `rule_fired` vs `rule_used_in_answer` and record outcomes for current active regression cases.
-2. Provenance closure: repair or mark legacy only the high-risk active rules/decisions missing `event_ids`; do not bulk mutate all notes.
+1. [x] Outcome review closure: `review_behavior_outcome` now records `rule_used_in_answer`, links related active regression cases, and closes them in the regression report through `case:<id>` tags.
+2. [ ] Provenance closure: repair or mark legacy only the high-risk active rules/decisions missing `event_ids`; do not bulk mutate all notes.
 3. Dream Cycle closure: prove proposal/apply separation with seeded inbox/duplicate/stale notes and no silent promotion.
 4. Fresh-session closure: restart/fresh Hermes session dogfood and compare Context Pack output.
 
