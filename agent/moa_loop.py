@@ -35,7 +35,7 @@ def _run_reference(
     ref_messages: list[dict[str, Any]],
     *,
     temperature: float,
-    max_tokens: int,
+    max_tokens: int | None = None,
 ) -> tuple[str, str]:
     """Call one reference model and return ``(label, text)``.
 
@@ -65,7 +65,7 @@ def _run_references_parallel(
     ref_messages: list[dict[str, Any]],
     *,
     temperature: float,
-    max_tokens: int,
+    max_tokens: int | None = None,
 ) -> list[tuple[str, str]]:
     """Fan out all reference models in parallel, returning outputs in order.
 
@@ -169,12 +169,18 @@ def aggregate_moa_context(
     aggregator: dict[str, str],
     temperature: float = 0.6,
     aggregator_temperature: float = 0.4,
-    max_tokens: int = 4096,
+    max_tokens: int | None = None,
 ) -> str:
     """Run configured reference models and synthesize their advice.
 
     Failures are returned as model-specific notes instead of aborting the normal
     agent loop; the main model can still act with partial context.
+
+    ``max_tokens`` is ``None`` by default: MoA does not cap reference or
+    aggregator output, so each model uses its own maximum. ``call_llm`` omits
+    the parameter entirely when it is ``None`` (see its docstring), which also
+    sidesteps providers that reject ``max_tokens`` outright. A hardcoded cap
+    here previously truncated long aggregator syntheses.
     """
     reference_outputs: list[tuple[str, str]] = []
     ref_messages = _reference_messages(api_messages)
@@ -241,7 +247,10 @@ class MoAChatCompletions:
         messages = list(api_kwargs.get("messages") or [])
         reference_models = preset.get("reference_models") or []
         aggregator = preset.get("aggregator") or {}
-        max_tokens = int(preset.get("max_tokens", api_kwargs.get("max_tokens") or 4096) or 4096)
+        # MoA does not cap reference or aggregator output: each model uses its
+        # own maximum. Passing max_tokens=None makes call_llm omit the parameter
+        # (it never caps by default), so a long aggregator synthesis is never
+        # truncated and providers that reject max_tokens don't 400.
         temperature = float(preset.get("reference_temperature", 0.6) or 0.6)
         aggregator_temperature = float(preset.get("aggregator_temperature", api_kwargs.get("temperature") or 0.4) or 0.4)
 
@@ -257,7 +266,7 @@ class MoAChatCompletions:
             reference_models,
             ref_messages,
             temperature=temperature,
-            max_tokens=max_tokens,
+            max_tokens=None,
         )
 
         agg_messages = [dict(m) for m in messages]
@@ -294,6 +303,11 @@ class MoAChatCompletions:
             model=aggregator.get("model"),
             messages=agg_messages,
             temperature=aggregator_temperature,
+            # Pass through whatever the caller set (usually None). MoA does not
+            # impose its own cap: with no caller cap, call_llm omits max_tokens
+            # so the aggregator uses the model's full output budget. The preset's
+            # old hardcoded 4096 default is intentionally gone — it truncated
+            # long syntheses.
             max_tokens=agg_kwargs.get("max_tokens"),
             tools=agg_kwargs.get("tools"),
             extra_body=agg_kwargs.get("extra_body"),
