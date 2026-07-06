@@ -365,6 +365,9 @@ class TestDockerHostBindApproval:
         monkeypatch.setattr(
             "tools.tirith_security.check_command_security",
             lambda _c: {"action": "allow", "findings": [], "summary": ""})
+        monkeypatch.setattr(A, "_smart_approve", lambda *_args, **_kwargs: "escalate")
+        monkeypatch.setattr(A, "is_approved", lambda *_args, **_kwargs: False)
+        monkeypatch.setattr(A, "_command_matches_permanent_allowlist", lambda *_args, **_kwargs: False)
         res = A.check_all_command_guards("rm -rf /workspace", "docker",
                                          has_host_access=True)
         # Must NOT take the silent container fast-path.

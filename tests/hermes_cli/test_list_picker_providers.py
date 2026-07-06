@@ -83,6 +83,7 @@ def test_openrouter_empty_live_catalog_drops_row(monkeypatch):
                         lambda **kw: list(base))
     monkeypatch.setattr("hermes_cli.models.fetch_openrouter_models",
                         lambda *a, **kw: [])
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     result = model_switch.list_picker_providers(max_models=50)
 
@@ -176,6 +177,7 @@ def test_custom_endpoint_with_api_url_kept_when_models_empty(monkeypatch):
                         lambda **kw: list(base))
     monkeypatch.setattr("hermes_cli.models.fetch_openrouter_models",
                         lambda *a, **kw: [])
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     result = model_switch.list_picker_providers(max_models=50)
 
@@ -198,6 +200,7 @@ def test_user_defined_without_api_url_and_empty_models_dropped(monkeypatch):
                         lambda **kw: list(base))
     monkeypatch.setattr("hermes_cli.models.fetch_openrouter_models",
                         lambda *a, **kw: [])
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     result = model_switch.list_picker_providers(max_models=50)
 
@@ -239,6 +242,7 @@ def test_passthrough_kwargs_to_base(monkeypatch):
     monkeypatch.setattr(model_switch, "list_authenticated_providers", _capture)
     monkeypatch.setattr("hermes_cli.models.fetch_openrouter_models",
                         lambda *a, **kw: [])
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     model_switch.list_picker_providers(
         current_provider="openrouter",
@@ -264,6 +268,7 @@ def test_current_custom_endpoint_passthrough_marks_current_row(monkeypatch):
     monkeypatch.setattr("hermes_cli.providers.HERMES_OVERLAYS", {})
     monkeypatch.setattr("hermes_cli.models.fetch_openrouter_models",
                         lambda *a, **kw: [])
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     result = model_switch.list_picker_providers(
         current_provider="custom:ollama",

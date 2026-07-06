@@ -22,6 +22,7 @@ def test_list_authenticated_providers_includes_custom_providers(monkeypatch):
     """No-args /model menus should include saved custom_providers entries."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         current_provider="openai-codex",
@@ -100,6 +101,7 @@ def test_list_authenticated_providers_includes_active_bare_custom_endpoint(monke
     """
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         current_provider="custom",
@@ -214,6 +216,7 @@ def test_list_groups_same_name_custom_providers_into_one_row(monkeypatch):
     with all models collected, not N duplicate rows."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         current_provider="openrouter",
@@ -245,6 +248,7 @@ def test_list_deduplicates_same_model_in_group(monkeypatch):
     duplicate entries in the models list."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         current_provider="openrouter",
@@ -274,6 +278,7 @@ def test_list_enumerates_dict_format_models_alongside_default(monkeypatch):
     """
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         current_provider="openai-codex",
@@ -304,6 +309,7 @@ def test_list_enumerates_dict_format_models_without_singular_model(monkeypatch):
     enumerate every dict key (previously the picker reported 0 models)."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         current_provider="openai-codex",
@@ -337,6 +343,7 @@ def test_list_dedupes_dict_model_matching_singular_default(monkeypatch):
     it must appear exactly once in the picker."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         current_provider="openai-codex",
@@ -371,6 +378,7 @@ def test_list_authenticated_providers_groups_same_endpoint(monkeypatch):
     returned as a single picker row with all their models merged."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         current_provider="custom",
@@ -406,6 +414,7 @@ def test_list_authenticated_providers_current_endpoint_uses_current_slug(monkeyp
     the corrupt bare "custom" (see #17478)."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         current_provider="custom:ollama",
@@ -432,6 +441,7 @@ def test_list_authenticated_providers_bare_custom_slug_recovers(monkeypatch):
     ``custom:<name>`` form so the picker stays usable."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         current_provider="custom",
@@ -457,6 +467,7 @@ def test_list_authenticated_providers_distinct_endpoints_stay_separate(monkeypat
     even if some display names happen to be similar."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         user_providers={},
@@ -486,6 +497,7 @@ def test_list_authenticated_providers_same_url_different_keys_disambiguated(monk
     picker — slug is suffixed to disambiguate."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         user_providers={},
@@ -513,6 +525,7 @@ def test_list_authenticated_providers_same_url_different_key_env_and_api_mode_st
     """Same gateway host but different key_env/api_mode entries are distinct providers."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     providers = list_authenticated_providers(
         current_provider="custom:gpt",
@@ -552,6 +565,7 @@ def test_list_authenticated_providers_total_models_reflects_grouped_count(monkey
     the full count, and every grouped model appears in the list."""
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
 
     entries = [
         {"name": f"Ollama \u2014 Model {i}", "base_url": "http://localhost:11434/v1",
@@ -580,6 +594,7 @@ def test_lmstudio_picker_probes_active_config_base_url(monkeypatch):
     """
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
     monkeypatch.delenv("LM_BASE_URL", raising=False)
     monkeypatch.delenv("LM_API_KEY", raising=False)
 
@@ -608,6 +623,7 @@ def test_lmstudio_picker_lm_base_url_env_wins_over_active_config(monkeypatch):
     """
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
     monkeypatch.setenv("LM_BASE_URL", "http://override.local:9999/v1")
     monkeypatch.delenv("LM_API_KEY", raising=False)
 
@@ -634,6 +650,7 @@ def test_lmstudio_picker_skips_probe_when_not_configured(monkeypatch):
     """
     monkeypatch.setattr("agent.models_dev.fetch_models_dev", lambda: {})
     monkeypatch.setattr(providers_mod, "HERMES_OVERLAYS", {})
+    monkeypatch.setattr("hermes_cli.models.fetch_api_models", lambda *a, **kw: None)
     monkeypatch.delenv("LM_BASE_URL", raising=False)
     monkeypatch.delenv("LM_API_KEY", raising=False)
 

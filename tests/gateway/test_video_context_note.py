@@ -45,6 +45,7 @@ async def test_video_attachment_adds_path_note_without_document_wording():
 
     assert "video attachment" in result
     assert "/tmp/video_clip.mp4" in result
-    assert "video analysis or media tool" in result
+    assert "video_analyze" in result
+    assert "video_url" in result
     assert "The user sent a document" not in result
     assert _build_media_placeholder(event) == "[User sent a video: /tmp/video_clip.mp4]"

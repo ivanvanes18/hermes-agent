@@ -6616,11 +6616,8 @@ def test_browser_manage_connect_default_local_reports_launch_hint(monkeypatch):
         _stub_urlopen(monkeypatch, ok=False)
         with (
             patch(
-                "hermes_cli.browser_connect.try_launch_chrome_debug", return_value=False
-            ),
-            patch(
-                "hermes_cli.browser_connect.get_chrome_debug_candidates",
-                return_value=[],
+                "hermes_cli.browser_connect.launch_chrome_debug",
+                return_value=types.SimpleNamespace(launched=False, hint="No supported Chromium-family browser executable was found in this environment."),
             ),
         ):
             resp = server.handle_request(
