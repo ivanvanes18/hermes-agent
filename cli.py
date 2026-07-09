@@ -5311,7 +5311,9 @@ class HermesCLI(CLIAgentSetupMixin, CLICommandsMixin):
 
         # 2. Replace untouched default with a Codex model
         if self._model_is_default:
-            fallback_model = "gpt-5.3-codex"
+            from hermes_cli.codex_models import DEFAULT_CODEX_MODELS
+
+            fallback_model = DEFAULT_CODEX_MODELS[0]
             try:
                 from hermes_cli.codex_models import get_codex_model_ids
 

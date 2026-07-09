@@ -7,13 +7,13 @@ from hermes_cli.codex_models import DEFAULT_CODEX_MODELS, get_codex_model_ids
 def test_get_codex_model_ids_prioritizes_default_and_cache(tmp_path, monkeypatch):
     codex_home = tmp_path / "codex-home"
     codex_home.mkdir(parents=True, exist_ok=True)
-    (codex_home / "config.toml").write_text('model = "gpt-5.2-codex"\n')
+    (codex_home / "config.toml").write_text('model = "gpt-5.6-terra"\n')
     (codex_home / "models_cache.json").write_text(
         json.dumps(
             {
                 "models": [
-                    {"slug": "gpt-5.3-codex", "priority": 20, "supported_in_api": True},
-                    {"slug": "gpt-5.3-codex-spark", "priority": 6, "supported_in_api": False},
+                    {"slug": "gpt-5.6-luna", "priority": 20, "supported_in_api": True},
+                    {"slug": "gpt-5.6-sol", "priority": 6, "supported_in_api": False},
                     {"slug": "gpt-5.1-codex", "priority": 5, "supported_in_api": True},
                     {"slug": "gpt-5.4", "priority": 1, "supported_in_api": True},
                     {"slug": "gpt-5-hidden-codex", "priority": 2, "visibility": "hidden"},
@@ -25,15 +25,9 @@ def test_get_codex_model_ids_prioritizes_default_and_cache(tmp_path, monkeypatch
 
     models = get_codex_model_ids()
 
-    assert models[0] == "gpt-5.2-codex"
-    assert "gpt-5.1-codex" in models
-    assert "gpt-5.3-codex" in models
-    # Codex CLI marks Spark unsupported in the public API, but the Codex
-    # backend still accepts it via the OAuth-backed CLI/Hermes route.
-    assert "gpt-5.3-codex-spark" in models
-    # Non-codex-suffixed models are included when the cache says they're available
-    assert "gpt-5.4" in models
-    assert "gpt-5.4-mini" in models
+    assert models == ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5"]
+    assert "gpt-5.1-codex" not in models
+    assert "gpt-5.4" not in models
     assert "gpt-5-hidden-codex" not in models
 
 
@@ -52,29 +46,35 @@ def test_get_codex_model_ids_falls_back_to_curated_defaults(tmp_path, monkeypatc
 
     models = get_codex_model_ids()
 
-    assert models[: len(DEFAULT_CODEX_MODELS)] == DEFAULT_CODEX_MODELS
-    assert "gpt-5.4" in models
-    assert "gpt-5.3-codex-spark" in models
+    assert models == DEFAULT_CODEX_MODELS
 
 
-def test_get_codex_model_ids_adds_forward_compat_models_from_templates(monkeypatch):
+def test_get_codex_model_ids_filters_live_discovery_to_working_set(monkeypatch):
     monkeypatch.setattr(
         "hermes_cli.codex_models._fetch_models_from_api",
-        lambda access_token: ["gpt-5.3-codex"],
+        lambda access_token: [
+            "gpt-5.6-luna",
+            "gpt-5.6-sol",
+            "gpt-5.4",
+            "gpt-5.3-codex-spark",
+            "gpt-5.5",
+        ],
     )
 
     models = get_codex_model_ids(access_token="codex-access-token")
 
-    # When live discovery only returns gpt-5.3-codex, forward-compat synthesis
-    # should surface gpt-5.5, gpt-5.4, gpt-5.4-mini, and gpt-5.3-codex-spark
-    # (each is templated off gpt-5.3-codex).
-    assert models == [
-        "gpt-5.3-codex",
-        "gpt-5.5",
-        "gpt-5.4-mini",
-        "gpt-5.4",
-        "gpt-5.3-codex-spark",
-    ]
+    assert models == ["gpt-5.6-sol", "gpt-5.6-luna", "gpt-5.5"]
+
+
+def test_get_codex_model_ids_falls_back_when_live_has_no_working_models(monkeypatch):
+    monkeypatch.setattr(
+        "hermes_cli.codex_models._fetch_models_from_api",
+        lambda access_token: ["gpt-5.4", "gpt-5.3-codex-spark"],
+    )
+
+    models = get_codex_model_ids(access_token="codex-access-token")
+
+    assert models == DEFAULT_CODEX_MODELS
 
 
 def test_fetch_from_api_keeps_supported_in_api_false_models(monkeypatch):
@@ -357,15 +357,15 @@ class TestNormalizeModelForProvider:
         assert cli._model_is_default is True
         with patch(
             "hermes_cli.codex_models.get_codex_model_ids",
-            return_value=["gpt-5.3-codex", "gpt-5.4"],
+            return_value=["gpt-5.6-terra", "gpt-5.6-sol"],
         ):
             changed = cli._normalize_model_for_provider("openai-codex")
         assert changed is True
         # Uses first from available list
-        assert cli.model == "gpt-5.3-codex"
+        assert cli.model == "gpt-5.6-terra"
 
     def test_default_fallback_when_api_fails(self):
-        """No model configured falls back to gpt-5.3-codex when API unreachable."""
+        """No model configured falls back to the curated Codex working set."""
         import cli as _cli_mod
         _clean_config = {
             "model": {
@@ -391,4 +391,4 @@ class TestNormalizeModelForProvider:
         ):
             changed = cli._normalize_model_for_provider("openai-codex")
         assert changed is True
-        assert cli.model == "gpt-5.3-codex"
+        assert cli.model == "gpt-5.6-sol"

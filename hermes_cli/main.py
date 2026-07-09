@@ -2953,6 +2953,7 @@ def select_provider_and_model(args=None):
 
     from hermes_cli.models import (
         CANONICAL_PROVIDERS,
+        MODEL_PICKER_PROVIDER_ALLOWLIST,
         _PROVIDER_LABELS,
         group_providers,
         provider_group_for_slug,
@@ -2978,6 +2979,17 @@ def select_provider_and_model(args=None):
     # unchanged. Custom providers and the trailing actions stay flat.
     canonical_descs = {p.slug: p.tui_desc for p in CANONICAL_PROVIDERS}
     grouped_rows = group_providers([p.slug for p in CANONICAL_PROVIDERS])
+    filtered_grouped_rows = []
+    for row in grouped_rows:
+        if row["kind"] == "group":
+            members = [m for m in row["members"] if m in MODEL_PICKER_PROVIDER_ALLOWLIST]
+            if members:
+                row = dict(row)
+                row["members"] = members
+                filtered_grouped_rows.append(row)
+        elif row["slug"] in MODEL_PICKER_PROVIDER_ALLOWLIST:
+            filtered_grouped_rows.append(row)
+    grouped_rows = filtered_grouped_rows
 
     # The group/slug that should be pre-selected: the active provider's group
     # if it's grouped, otherwise the active slug itself.

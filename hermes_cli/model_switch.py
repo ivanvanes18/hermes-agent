@@ -1496,6 +1496,7 @@ def list_authenticated_providers(
     from hermes_cli.auth import PROVIDER_REGISTRY
     from hermes_cli.models import (
         OPENROUTER_MODELS, _PROVIDER_MODELS,
+        MODEL_PICKER_PROVIDER_ALLOWLIST,
         _MODELS_DEV_PREFERRED, _merge_with_models_dev, cached_provider_model_ids,
         clear_provider_models_cache, get_curated_nous_model_ids,
     )
@@ -2312,6 +2313,16 @@ def list_authenticated_providers(
             })
             seen_slugs.add(slug.lower())
             _section4_emitted_slugs.add(slug.lower())
+
+    # Keep built-in picker rows focused on Ivan's working providers. Preserve
+    # user-defined/custom endpoint rows because those are explicit local config,
+    # not the upstream Hermes provider zoo.
+    results = [
+        row
+        for row in results
+        if row.get("is_user_defined")
+        or str(row.get("slug", "")).lower() in MODEL_PICKER_PROVIDER_ALLOWLIST
+    ]
 
     # Surface a custom / uncurated model the user selected via the CLI.
     # Each row's model list is its curated/live catalog, so a model the user set
