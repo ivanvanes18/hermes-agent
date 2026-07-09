@@ -72,6 +72,16 @@
       "command": "post-install smoke + targeted subset",
       "exit_code": 0,
       "summary": "dist_version 0.18.2; 98 passed"
+    },
+    {
+      "command": "prod-targeted pytest suite rerun",
+      "exit_code": 0,
+      "summary": "417 passed in 107.61s"
+    },
+    {
+      "command": "hermes gateway restart",
+      "exit_code": 1,
+      "summary": "Blocked inside gateway process by Hermes safety guardrail"
     }
   ],
   "artifacts_used": [
@@ -83,11 +93,16 @@
     "evidence.json",
     "raw/install-sync.txt",
     "raw/post-install-smoke.txt",
-    "raw/post-install-tests.txt"
+    "raw/post-install-tests.txt",
+    "raw/prod-targeted-tests.txt",
+    "raw/prod-targeted-tests-rerun.txt",
+    "raw/gateway-restart.txt",
+    "raw/gateway-status-after-restart-block.txt"
   ],
   "known_caveats": [
     "Branch is not pushed and not activated in live gateway.",
-    "Full repository test suite was not run."
+    "Full repository test suite was not run.",
+    "Gateway restart still needs /restart or external shell command."
   ],
   "verified_at": "2026-07-10T00:47:12+03:00"
 }

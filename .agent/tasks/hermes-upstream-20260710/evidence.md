@@ -110,3 +110,29 @@ Raw artifacts:
 - `raw/post-install-tests.txt`
 
 Live gateway was not restarted or switched.
+
+## Production-targeted test and restart attempt evidence
+
+Pre-restart production-targeted pytest rerun passed:
+
+```bash
+python -m pytest <prod-targeted suite> -q -o 'addopts='
+# 417 passed in 107.61s (0:01:47)
+```
+
+The first broad run had one order/flaky readable_tree assertion failure; the exact single test passed in isolation immediately after, and the full same prod-targeted suite passed on rerun. Raw outputs:
+- `raw/prod-targeted-tests.txt`
+- `raw/prod-targeted-tests-rerun.txt`
+
+Gateway service definition already points at this checkout/venv:
+- Program: `/Users/aiasistans/hermes-agent-update-check/.venv/bin/python -m hermes_cli.main gateway run --replace`
+- Branch: `update/upstream-2026-07-10-merge`
+
+Restart attempt from inside the serving Telegram gateway was intentionally blocked by Hermes guardrail:
+
+```text
+Blocked: cannot restart or stop the gateway from inside the gateway process.
+Run `hermes gateway restart` from a separate shell outside the running gateway.
+```
+
+Current launchd gateway PID before external restart: `16750`, started `Fri Jul 10 00:14:24 2026`.

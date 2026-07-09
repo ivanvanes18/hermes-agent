@@ -115,7 +115,8 @@
   "known_gaps": [
     "Full suite not run; targeted suite passed.",
     "Branch not pushed/activated.",
-    "Branch not pushed/activated; live gateway was not restarted."
+    "Branch not pushed/activated; live gateway was not restarted.",
+    "Live gateway restart is still pending; in-gateway terminal restart was blocked by Hermes safety guardrail."
   ],
   "commands": [
     {
@@ -163,5 +164,21 @@
       "raw/post-install-tests.txt"
     ],
     "live_gateway_restarted": false
+  },
+  "prod_targeted_tests": {
+    "status": "PASS_AFTER_RERUN",
+    "first_run": "1 failed, 416 passed; failing readable_tree test passed in isolation",
+    "rerun": "417 passed in 107.61s",
+    "artifacts": [
+      "raw/prod-targeted-tests.txt",
+      "raw/prod-targeted-tests-rerun.txt"
+    ]
+  },
+  "gateway_activation": {
+    "service_points_to_checkout": true,
+    "program": "/Users/aiasistans/hermes-agent-update-check/.venv/bin/python -m hermes_cli.main gateway run --replace",
+    "restart_status": "BLOCKED_INSIDE_GATEWAY_PROCESS",
+    "required_next_step": "Run /restart in Telegram or hermes gateway restart from an external shell.",
+    "artifact": "raw/gateway-restart.txt"
   }
 }

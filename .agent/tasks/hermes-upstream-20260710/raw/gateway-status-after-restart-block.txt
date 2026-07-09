@@ -1,0 +1,4 @@
+Launchd plist: /Users/aiasistans/Library/LaunchAgents/ai.hermes.gateway.plist
+✓ Service definition matches the current Hermes install
+✓ Gateway is supervised by launchd (PID 16750)
+  Auto-start at login and auto-restart on crash are available.

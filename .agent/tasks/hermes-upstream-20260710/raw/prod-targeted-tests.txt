@@ -1,0 +1,42 @@
+........................................................................ [ 17%]
+...............................F........................................ [ 34%]
+........................................................................ [ 51%]
+........................................................................ [ 69%]
+........................................................................ [ 86%]
+.........................................................                [100%]
+=================================== FAILURES ===================================
+___________ test_review_behavior_outcome_writes_outcome_review_event ___________
+
+tmp_path = PosixPath('/private/var/folders/4_/4q_cygh91cbfyvqj1fqdfvvr0000gn/T/pytest-of-aiasistans/pytest-1320/test_review_behavior_outcome_w0')
+
+    def test_review_behavior_outcome_writes_outcome_review_event(tmp_path):
+        provider = ReadableTreeMemoryProvider({"agent": "reyna", "auto_flush": False})
+        provider.initialize("session-1", hermes_home=str(tmp_path), agent_identity="reyna")
+        assert provider._store is not None
+        chain = provider._store.record_correction(
+            "Ты говоришь готово без проверки.",
+            source_id="turn-1",
+            session_id="session-1",
+        )
+        rule_id = next(
+            note_id for note_id in chain["note_ids"]
+            if any(row["id"] == note_id and row["type"] == "behavior_rule" for row in provider._store.index.search("verification", statuses=["active"], limit=20))
+        )
+    
+        result = json.loads(provider.handle_tool_call("readable_memory_review_outcome", {
+            "rule_id": rule_id,
+            "outcome": "fixed",
+            "evidence": "Later answer included pytest output before claiming done.",
+        }))
+    
+        assert result["success"] is True
+        assert result["outcome"] == "fixed"
+        reviews = provider._store.index.search("Later answer included pytest output", statuses=["active"], limit=10)
+>       assert any(row["type"] == "outcome_review" for row in reviews)
+E       assert False
+E        +  where False = any(<generator object test_review_behavior_outcome_writes_outcome_review_event.<locals>.<genexpr> at 0x11329d7d0>)
+
+tests/plugins/test_readable_tree_memory.py:632: AssertionError
+=========================== short test summary info ============================
+FAILED tests/plugins/test_readable_tree_memory.py::test_review_behavior_outcome_writes_outcome_review_event
+1 failed, 416 passed in 108.15s (0:01:48)
