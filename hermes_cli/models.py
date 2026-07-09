@@ -33,6 +33,8 @@ COPILOT_REASONING_EFFORTS_O_SERIES = ["low", "medium", "high"]
 # Fallback OpenRouter snapshot used when the live catalog is unavailable.
 # (model_id, display description shown in menus)
 OPENROUTER_MODELS: list[tuple[str, str]] = [
+    # Ivan-local picker curation: keep OpenRouter fallback/picker focused on
+    # the working paid route instead of repopulating the full upstream catalog.
     ("minimax/minimax-m3", "MiniMax M3"),
 ]
 
@@ -71,6 +73,7 @@ def _codex_curated_models() -> list[str]:
 #  grok-4-1-fast{,-reasoning,-non-reasoning}, grok-code-fast-1 → grok-4.3).
 _XAI_STATIC_FALLBACK: list[str] = [
     "grok-build-0.1",
+    "grok-4.5",
     "grok-4.3",
     "grok-4.20-0309-reasoning",
     "grok-4.20-0309-non-reasoning",
@@ -79,6 +82,7 @@ _XAI_STATIC_FALLBACK: list[str] = [
 
 # Callable via xAI OAuth but omitted from models.dev and /v1/models listings.
 _XAI_CURATED_EXTRAS: list[str] = [
+    "grok-4.5",  # GA 2026-07 — kept until the models.dev disk cache refreshes
     "grok-composer-2.5-fast",
 ]
 
@@ -141,6 +145,12 @@ _PROVIDER_MODELS: dict[str, list[str]] = {
         "anthropic/claude-sonnet-5",
         "anthropic/claude-haiku-4.5",
         # OpenAI
+        "openai/gpt-5.6-sol",
+        "openai/gpt-5.6-sol-pro",
+        "openai/gpt-5.6-terra",
+        "openai/gpt-5.6-terra-pro",
+        "openai/gpt-5.6-luna",
+        "openai/gpt-5.6-luna-pro",
         "openai/gpt-5.5",
         "openai/gpt-5.5-pro",
         "openai/gpt-5.4-mini",
@@ -149,7 +159,7 @@ _PROVIDER_MODELS: dict[str, list[str]] = {
         "google/gemini-3.1-pro-preview",
         "google/gemini-3.5-flash",
         # xAI
-        "x-ai/grok-4.3",
+        "x-ai/grok-4.5",
         # DeepSeek
         "deepseek/deepseek-v4-pro",
         "deepseek/deepseek-v4-flash",
@@ -168,7 +178,7 @@ _PROVIDER_MODELS: dict[str, list[str]] = {
         # Xiaomi
         "xiaomi/mimo-v2.5-pro",
         # Tencent
-        "tencent/hy3-preview",
+        "tencent/hy3",
         # StepFun
         "stepfun/step-3.7-flash",
         # NVIDIA
@@ -189,6 +199,12 @@ _PROVIDER_MODELS: dict[str, list[str]] = {
         "gpt-4o-mini",
     ],
     "openai-api": [
+        "gpt-5.6-sol",
+        "gpt-5.6-sol-pro",
+        "gpt-5.6-terra",
+        "gpt-5.6-terra-pro",
+        "gpt-5.6-luna",
+        "gpt-5.6-luna-pro",
         "gpt-5.5",
         "gpt-5.5-pro",
         "gpt-5.4",

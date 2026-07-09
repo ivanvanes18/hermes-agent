@@ -1,0 +1,24 @@
+Автослияние AGENTS.md
+Автослияние agent/anthropic_adapter.py
+Автослияние agent/memory_manager.py
+Автослияние cli.py
+Автослияние gateway/platforms/base.py
+Автослияние gateway/run.py
+Автослияние hermes_cli/codex_models.py
+КОНФЛИКТ (содержимое): Конфликт слияния в hermes_cli/codex_models.py
+Автослияние hermes_cli/config.py
+Автослияние hermes_cli/main.py
+Автослияние hermes_cli/model_switch.py
+Автослияние hermes_cli/models.py
+КОНФЛИКТ (содержимое): Конфликт слияния в hermes_cli/models.py
+Автослияние tests/agent/test_auxiliary_client.py
+Автослияние tests/hermes_cli/test_gateway_service.py
+Автослияние tests/hermes_cli/test_model_switch_custom_providers.py
+Автослияние tests/test_tui_gateway_server.py
+КОНФЛИКТ (содержимое): Конфликт слияния в tests/test_tui_gateway_server.py
+Автослияние tests/tools/test_web_tools_config.py
+Автослияние tools/web_tools.py
+Автослияние website/static/api/model-catalog.json
+КОНФЛИКТ (содержимое): Конфликт слияния в website/static/api/model-catalog.json
+Сбой автоматического слияния; исправьте конфликты, затем зафиксируйте результат.
+merge_exit=1

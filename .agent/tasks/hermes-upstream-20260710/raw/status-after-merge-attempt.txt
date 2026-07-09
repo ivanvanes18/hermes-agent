@@ -1,0 +1,600 @@
+## update/upstream-2026-07-10-merge
+M  .envrc
+M  .github/workflows/ci.yml
+M  .gitignore
+M  AGENTS.md
+M  CONTRIBUTING.es.md
+M  CONTRIBUTING.md
+M  acp_registry/agent.json
+M  agent/account_usage.py
+M  agent/agent_init.py
+M  agent/agent_runtime_helpers.py
+M  agent/anthropic_adapter.py
+M  agent/auxiliary_client.py
+M  agent/background_review.py
+M  agent/chat_completion_helpers.py
+M  agent/codex_runtime.py
+M  agent/context_compressor.py
+M  agent/conversation_compression.py
+M  agent/conversation_loop.py
+M  agent/credential_pool.py
+M  agent/display.py
+M  agent/error_classifier.py
+M  agent/lsp/install.py
+M  agent/memory_manager.py
+M  agent/model_metadata.py
+M  agent/prompt_builder.py
+M  agent/reasoning_timeouts.py
+M  agent/replay_cleanup.py
+M  agent/retry_utils.py
+M  agent/secret_sources/__init__.py
+A  agent/secret_sources/_cache.py
+A  agent/secret_sources/base.py
+M  agent/secret_sources/bitwarden.py
+A  agent/secret_sources/onepassword.py
+A  agent/secret_sources/registry.py
+M  agent/shell_hooks.py
+M  agent/skill_commands.py
+M  agent/skill_utils.py
+M  agent/system_prompt.py
+M  agent/tool_executor.py
+A  agent/trace_upload.py
+M  agent/transports/chat_completions.py
+M  agent/transports/codex_app_server_session.py
+M  agent/turn_context.py
+M  agent/usage_pricing.py
+M  agent/web_search_provider.py
+M  agent/web_search_registry.py
+M  apps/bootstrap-installer/src-tauri/src/bootstrap.rs
+M  apps/bootstrap-installer/src-tauri/src/events.rs
+M  apps/bootstrap-installer/src-tauri/src/install_script.rs
+M  apps/bootstrap-installer/src-tauri/src/paths.rs
+M  apps/bootstrap-installer/src-tauri/src/powershell.rs
+M  apps/desktop/README.md
+R  apps/desktop/electron/backend-command.test.cjs -> apps/desktop/electron/backend-command.test.ts
+R  apps/desktop/electron/backend-command.cjs -> apps/desktop/electron/backend-command.ts
+R  apps/desktop/electron/backend-env.test.cjs -> apps/desktop/electron/backend-env.test.ts
+R  apps/desktop/electron/backend-env.cjs -> apps/desktop/electron/backend-env.ts
+R  apps/desktop/electron/backend-probes.test.cjs -> apps/desktop/electron/backend-probes.test.ts
+R  apps/desktop/electron/backend-probes.cjs -> apps/desktop/electron/backend-probes.ts
+R  apps/desktop/electron/backend-ready.test.cjs -> apps/desktop/electron/backend-ready.test.ts
+R  apps/desktop/electron/backend-ready.cjs -> apps/desktop/electron/backend-ready.ts
+R  apps/desktop/electron/bootstrap-platform.test.cjs -> apps/desktop/electron/bootstrap-platform.test.ts
+R  apps/desktop/electron/bootstrap-platform.cjs -> apps/desktop/electron/bootstrap-platform.ts
+R  apps/desktop/electron/bootstrap-runner.test.cjs -> apps/desktop/electron/bootstrap-runner.test.ts
+R  apps/desktop/electron/bootstrap-runner.cjs -> apps/desktop/electron/bootstrap-runner.ts
+R  apps/desktop/electron/connection-config.test.cjs -> apps/desktop/electron/connection-config.test.ts
+R  apps/desktop/electron/connection-config.cjs -> apps/desktop/electron/connection-config.ts
+R  apps/desktop/electron/dashboard-token.test.cjs -> apps/desktop/electron/dashboard-token.test.ts
+R  apps/desktop/electron/dashboard-token.cjs -> apps/desktop/electron/dashboard-token.ts
+R  apps/desktop/electron/desktop-uninstall.test.cjs -> apps/desktop/electron/desktop-uninstall.test.ts
+R  apps/desktop/electron/desktop-uninstall.cjs -> apps/desktop/electron/desktop-uninstall.ts
+R  apps/desktop/electron/embed-referer.cjs -> apps/desktop/electron/embed-referer.ts
+R  apps/desktop/electron/fs-read-dir.test.cjs -> apps/desktop/electron/fs-read-dir.test.ts
+R  apps/desktop/electron/fs-read-dir.cjs -> apps/desktop/electron/fs-read-dir.ts
+R  apps/desktop/electron/gateway-ws-probe.test.cjs -> apps/desktop/electron/gateway-ws-probe.test.ts
+R  apps/desktop/electron/gateway-ws-probe.cjs -> apps/desktop/electron/gateway-ws-probe.ts
+R  apps/desktop/electron/git-repo-scan.cjs -> apps/desktop/electron/git-repo-scan.ts
+R  apps/desktop/electron/git-review-ops.test.cjs -> apps/desktop/electron/git-review-ops.test.ts
+R  apps/desktop/electron/git-review-ops.cjs -> apps/desktop/electron/git-review-ops.ts
+R  apps/desktop/electron/git-root.test.cjs -> apps/desktop/electron/git-root.test.ts
+R  apps/desktop/electron/git-root.cjs -> apps/desktop/electron/git-root.ts
+R  apps/desktop/electron/git-worktree-ops.test.cjs -> apps/desktop/electron/git-worktree-ops.test.ts
+R  apps/desktop/electron/git-worktree-ops.cjs -> apps/desktop/electron/git-worktree-ops.ts
+R  apps/desktop/electron/hardening.test.cjs -> apps/desktop/electron/hardening.test.ts
+R  apps/desktop/electron/hardening.cjs -> apps/desktop/electron/hardening.ts
+R  apps/desktop/electron/link-title-window.test.cjs -> apps/desktop/electron/link-title-window.test.ts
+R  apps/desktop/electron/link-title-window.cjs -> apps/desktop/electron/link-title-window.ts
+R  apps/desktop/electron/main.cjs -> apps/desktop/electron/main.ts
+R  apps/desktop/electron/oauth-net-request.test.cjs -> apps/desktop/electron/oauth-net-request.test.ts
+R  apps/desktop/electron/oauth-net-request.cjs -> apps/desktop/electron/oauth-net-request.ts
+A  apps/desktop/electron/oauth-session-request.test.ts
+R  apps/desktop/electron/preload.cjs -> apps/desktop/electron/preload.ts
+R  apps/desktop/electron/profile-delete-respawn.test.cjs -> apps/desktop/electron/profile-delete-respawn.test.ts
+R  apps/desktop/electron/session-windows.test.cjs -> apps/desktop/electron/session-windows.test.ts
+R  apps/desktop/electron/session-windows.cjs -> apps/desktop/electron/session-windows.ts
+R  apps/desktop/electron/titlebar-overlay-width.test.cjs -> apps/desktop/electron/titlebar-overlay-width.test.ts
+R  apps/desktop/electron/titlebar-overlay-width.cjs -> apps/desktop/electron/titlebar-overlay-width.ts
+R  apps/desktop/electron/update-count.test.cjs -> apps/desktop/electron/update-count.test.ts
+R  apps/desktop/electron/update-count.cjs -> apps/desktop/electron/update-count.ts
+R  apps/desktop/electron/update-marker.test.cjs -> apps/desktop/electron/update-marker.test.ts
+R  apps/desktop/electron/update-marker.cjs -> apps/desktop/electron/update-marker.ts
+R  apps/desktop/electron/update-rebuild.test.cjs -> apps/desktop/electron/update-rebuild.test.ts
+R  apps/desktop/electron/update-rebuild.cjs -> apps/desktop/electron/update-rebuild.ts
+R  apps/desktop/electron/update-relaunch.test.cjs -> apps/desktop/electron/update-relaunch.test.ts
+R  apps/desktop/electron/update-relaunch.cjs -> apps/desktop/electron/update-relaunch.ts
+R  apps/desktop/electron/update-remote.test.cjs -> apps/desktop/electron/update-remote.test.ts
+R  apps/desktop/electron/update-remote.cjs -> apps/desktop/electron/update-remote.ts
+R  apps/desktop/electron/vscode-marketplace.test.cjs -> apps/desktop/electron/vscode-marketplace.test.ts
+R  apps/desktop/electron/vscode-marketplace.cjs -> apps/desktop/electron/vscode-marketplace.ts
+R  apps/desktop/electron/window-state.test.cjs -> apps/desktop/electron/window-state.test.ts
+R  apps/desktop/electron/window-state.cjs -> apps/desktop/electron/window-state.ts
+R  apps/desktop/electron/windows-child-process.test.cjs -> apps/desktop/electron/windows-child-process.test.ts
+R  apps/desktop/electron/windows-hermes-resolution.test.cjs -> apps/desktop/electron/windows-hermes-resolution.test.ts
+R  apps/desktop/electron/windows-user-env.test.cjs -> apps/desktop/electron/windows-user-env.test.ts
+R  apps/desktop/electron/windows-user-env.cjs -> apps/desktop/electron/windows-user-env.ts
+R  apps/desktop/electron/workspace-cwd.test.cjs -> apps/desktop/electron/workspace-cwd.test.ts
+R  apps/desktop/electron/workspace-cwd.cjs -> apps/desktop/electron/workspace-cwd.ts
+R  apps/desktop/electron/wsl-clipboard-image.test.cjs -> apps/desktop/electron/wsl-clipboard-image.test.ts
+R  apps/desktop/electron/wsl-clipboard-image.cjs -> apps/desktop/electron/wsl-clipboard-image.ts
+A  apps/desktop/electron/zoom.test.ts
+A  apps/desktop/electron/zoom.ts
+M  apps/desktop/eslint.config.mjs
+M  apps/desktop/package.json
+R  apps/desktop/scripts/after-pack.cjs -> apps/desktop/scripts/after-pack.mjs
+R  apps/desktop/scripts/assert-dist-built.cjs -> apps/desktop/scripts/assert-dist-built.mjs
+R  apps/desktop/scripts/assert-dist-built.test.cjs -> apps/desktop/scripts/assert-dist-built.test.mjs
+D  apps/desktop/scripts/assert-root-install.cjs
+A  apps/desktop/scripts/assert-root-install.mjs
+R  apps/desktop/scripts/before-build.cjs -> apps/desktop/scripts/before-build.mjs
+R  apps/desktop/scripts/before-pack.cjs -> apps/desktop/scripts/before-pack.mjs
+R  apps/desktop/scripts/before-pack.test.cjs -> apps/desktop/scripts/before-pack.test.mjs
+A  apps/desktop/scripts/bundle-electron-main.mjs
+R  apps/desktop/scripts/notarize-artifact.cjs -> apps/desktop/scripts/notarize-artifact.mjs
+R  apps/desktop/scripts/notarize.cjs -> apps/desktop/scripts/notarize.mjs
+R  apps/desktop/scripts/patch-electron-builder-mac-binary.cjs -> apps/desktop/scripts/patch-electron-builder-mac-binary.mjs
+A  apps/desktop/scripts/rebuild-native.mjs
+R  apps/desktop/scripts/run-electron-builder.cjs -> apps/desktop/scripts/run-electron-builder.mjs
+R  apps/desktop/scripts/set-exe-identity.cjs -> apps/desktop/scripts/set-exe-identity.mjs
+D  apps/desktop/scripts/stage-native-deps.cjs
+A  apps/desktop/scripts/stage-native-deps.mjs
+M  apps/desktop/scripts/test-desktop.mjs
+A  apps/desktop/scripts/utils.mjs
+R  apps/desktop/scripts/write-build-stamp.cjs -> apps/desktop/scripts/write-build-stamp.mjs
+M  apps/desktop/src/app/artifacts/index.tsx
+M  apps/desktop/src/app/chat/index.tsx
+M  apps/desktop/src/app/chat/right-rail/preview-file.tsx
+M  apps/desktop/src/app/desktop-controller.tsx
+M  apps/desktop/src/app/session/hooks/use-message-stream/gateway-event.ts
+M  apps/desktop/src/app/session/hooks/use-prompt-actions/index.test.tsx
+M  apps/desktop/src/app/session/hooks/use-prompt-actions/index.ts
+M  apps/desktop/src/app/session/hooks/use-prompt-actions/submit.ts
+M  apps/desktop/src/app/session/hooks/use-prompt-actions/utils.ts
+M  apps/desktop/src/app/session/hooks/use-session-actions.test.tsx
+M  apps/desktop/src/app/session/hooks/use-session-actions/index.ts
+M  apps/desktop/src/app/session/hooks/use-session-actions/utils.ts
+M  apps/desktop/src/app/settings/appearance-settings.tsx
+M  apps/desktop/src/app/settings/model-settings.test.tsx
+M  apps/desktop/src/app/skills/hub.tsx
+M  apps/desktop/src/app/skills/index.tsx
+M  apps/desktop/src/components/desktop-install-overlay.tsx
+M  apps/desktop/src/components/model-visibility-dialog.tsx
+M  apps/desktop/src/components/onboarding/flow.tsx
+M  apps/desktop/src/components/onboarding/index.tsx
+M  apps/desktop/src/components/pet/floating-pet.tsx
+M  apps/desktop/src/components/ui/copy-button.tsx
+M  apps/desktop/src/global.d.ts
+M  apps/desktop/src/hermes.test.ts
+M  apps/desktop/src/hermes.ts
+M  apps/desktop/src/i18n/en.ts
+M  apps/desktop/src/i18n/ja.ts
+M  apps/desktop/src/i18n/types.ts
+M  apps/desktop/src/i18n/zh-hant.ts
+M  apps/desktop/src/i18n/zh.ts
+M  apps/desktop/src/lib/chat-messages.ts
+M  apps/desktop/src/lib/chat-runtime.ts
+M  apps/desktop/src/lib/media.ts
+M  apps/desktop/src/lib/model-options.ts
+M  apps/desktop/src/store/onboarding.ts
+M  apps/desktop/src/store/pet-overlay.ts
+M  apps/desktop/src/store/updates.ts
+M  apps/desktop/src/store/windows.ts
+A  apps/desktop/src/store/zoom.ts
+M  apps/desktop/src/themes/install.ts
+M  apps/desktop/src/types/hermes.ts
+A  apps/desktop/tsconfig.electron.json
+M  apps/desktop/tsconfig.json
+M  cli-config.yaml.example
+M  cli.py
+M  cron/jobs.py
+M  cron/scheduler.py
+M  docker/stage2-hook.sh
+M  gateway/authz_mixin.py
+M  gateway/channel_directory.py
+M  gateway/config.py
+M  gateway/pairing.py
+M  gateway/platforms/base.py
+M  gateway/platforms/webhook.py
+A  gateway/platforms/webhook_filters.py
+M  gateway/platforms/yuanbao.py
+M  gateway/relay/__init__.py
+M  gateway/relay/ws_transport.py
+M  gateway/run.py
+M  gateway/session.py
+M  gateway/session_context.py
+M  gateway/slash_commands.py
+M  gateway/status.py
+M  hermes_cli/__init__.py
+M  hermes_cli/_parser.py
+M  hermes_cli/auth.py
+M  hermes_cli/banner.py
+UU hermes_cli/codex_models.py
+M  hermes_cli/config.py
+M  hermes_cli/curator.py
+M  hermes_cli/dashboard_auth/middleware.py
+M  hermes_cli/dashboard_auth/prefix.py
+M  hermes_cli/dashboard_auth/routes.py
+M  hermes_cli/dingtalk_auth.py
+M  hermes_cli/env_loader.py
+M  hermes_cli/gateway.py
+M  hermes_cli/gateway_enroll.py
+M  hermes_cli/inventory.py
+M  hermes_cli/main.py
+M  hermes_cli/mcp_config.py
+M  hermes_cli/memory_setup.py
+M  hermes_cli/model_switch.py
+UU hermes_cli/models.py
+A  hermes_cli/onepassword_secrets_cli.py
+M  hermes_cli/oneshot.py
+M  hermes_cli/plugins.py
+M  hermes_cli/plugins_cmd.py
+A  hermes_cli/pty_session.py
+A  hermes_cli/session_export.py
+A  hermes_cli/session_export_html.py
+A  hermes_cli/session_export_md.py
+A  hermes_cli/session_filters.py
+M  hermes_cli/setup.py
+M  hermes_cli/subcommands/dashboard.py
+M  hermes_cli/subcommands/uninstall.py
+M  hermes_cli/subcommands/webhook.py
+M  hermes_cli/tools_config.py
+M  hermes_cli/uninstall.py
+M  hermes_cli/web_server.py
+M  hermes_cli/webhook.py
+M  hermes_state.py
+M  hermes_time.py
+M  model_tools.py
+M  nix/desktop.nix
+M  nix/devShell.nix
+M  nix/hermes-agent.nix
+M  nix/python.nix
+M  package-lock.json
+M  plugins/google_meet/cli.py
+M  plugins/kanban/dashboard/dist/index.js
+M  plugins/kanban/dashboard/dist/style.css
+M  plugins/memory/honcho/cli.py
+M  plugins/memory/mem0/README.md
+M  plugins/memory/mem0/__init__.py
+M  plugins/memory/mem0/_backend.py
+M  plugins/memory/mem0/_setup.py
+M  plugins/memory/mem0/plugin.yaml
+M  plugins/model-providers/qwen-oauth/__init__.py
+M  plugins/platforms/discord/adapter.py
+M  plugins/platforms/google_chat/oauth.py
+M  plugins/platforms/matrix/adapter.py
+M  plugins/platforms/telegram/adapter.py
+M  plugins/platforms/whatsapp/adapter.py
+M  plugins/web/brave_free/provider.py
+M  plugins/web/exa/provider.py
+M  plugins/web/firecrawl/provider.py
+M  plugins/web/parallel/provider.py
+M  plugins/web/tavily/provider.py
+M  pyproject.toml
+M  run_agent.py
+M  scripts/ci/timings_report.py
+A  scripts/docker_rebootstrap_nous_session.py
+M  scripts/install.ps1
+M  scripts/install.sh
+M  scripts/release.py
+M  scripts/whatsapp-bridge/bridge.js
+M  scripts/whatsapp-bridge/package-lock.json
+M  scripts/whatsapp-bridge/package.json
+M  skills/autonomous-ai-agents/hermes-agent/references/webhooks.md
+A  tests/agent/test_account_usage.py
+M  tests/agent/test_arcee_trinity_overrides.py
+M  tests/agent/test_auxiliary_client.py
+A  tests/agent/test_auxiliary_compression_timeout_floor.py
+M  tests/agent/test_auxiliary_main_first.py
+M  tests/agent/test_bedrock_integration.py
+A  tests/agent/test_bedrock_interrupt_post_worker.py
+M  tests/agent/test_codex_gpt55_autoraise_notice.py
+A  tests/agent/test_compression_small_ctx_threshold_floor.py
+M  tests/agent/test_context_compressor.py
+M  tests/agent/test_credential_pool_routing.py
+M  tests/agent/test_error_classifier.py
+A  tests/agent/test_memory_boundary_commit.py
+M  tests/agent/test_model_metadata.py
+M  tests/agent/test_model_metadata_local_ctx.py
+A  tests/agent/test_platform_hint_desktop.py
+A  tests/agent/test_probe_cache_followups.py
+M  tests/agent/test_reasoning_stale_timeout_floor.py
+M  tests/agent/test_skill_commands.py
+M  tests/agent/test_skill_utils.py
+A  tests/agent/test_trace_upload.py
+M  tests/agent/transports/test_chat_completions.py
+M  tests/agent/transports/test_codex_app_server_session.py
+A  tests/cli/test_chat_q_exit_clear.py
+M  tests/cli/test_cli_new_session.py
+M  tests/cli/test_reasoning_command.py
+M  tests/cli/test_single_query_session_finalize.py
+A  tests/cli/test_stream_partial_line_flush.py
+M  tests/cron/test_cron_script.py
+M  tests/cron/test_jobs.py
+M  tests/cron/test_scheduler.py
+A  tests/cron/test_shutdown_interrupt.py
+A  tests/cron/test_ticker_stall_60703.py
+A  tests/dashboard/test_ws_client_host.py
+M  tests/e2e/conftest.py
+M  tests/gateway/conftest.py
+A  tests/gateway/relay/test_identity_token_resolver.py
+M  tests/gateway/test_agent_cache.py
+A  tests/gateway/test_async_delegation_session_binding.py
+M  tests/gateway/test_channel_directory.py
+A  tests/gateway/test_channel_directory_connected_only.py
+M  tests/gateway/test_config.py
+A  tests/gateway/test_cron_active_work_drain.py
+A  tests/gateway/test_discord_approval_mentions.py
+M  tests/gateway/test_discord_clarify_buttons.py
+A  tests/gateway/test_discord_exec_approval_content.py
+A  tests/gateway/test_discord_fail_closed_feedback.py
+M  tests/gateway/test_discord_model_picker.py
+A  tests/gateway/test_discord_prompt_content_siblings.py
+A  tests/gateway/test_discord_prompt_timeout_config.py
+M  tests/gateway/test_discord_slash_auth.py
+M  tests/gateway/test_discord_slash_commands.py
+A  tests/gateway/test_discord_thread_slash_expired_defer.py
+A  tests/gateway/test_fallback_chain_reload.py
+M  tests/gateway/test_fast_command.py
+M  tests/gateway/test_multiplex_adapter_registry.py
+M  tests/gateway/test_multiplex_lifecycle.py
+M  tests/gateway/test_multiplex_phase0.py
+M  tests/gateway/test_pairing.py
+A  tests/gateway/test_priority_path_compression_demotion_56391.py
+M  tests/gateway/test_relay_upstream_authz.py
+M  tests/gateway/test_session.py
+M  tests/gateway/test_session_hygiene.py
+M  tests/gateway/test_session_info.py
+M  tests/gateway/test_shutdown_cache_cleanup.py
+A  tests/gateway/test_stale_confirmation_expiry.py
+M  tests/gateway/test_status.py
+M  tests/gateway/test_telegram_noise_filter.py
+A  tests/gateway/test_telegram_start_polling_timeout.py
+M  tests/gateway/test_telegram_thread_fallback.py
+M  tests/gateway/test_telegram_topic_mode.py
+A  tests/gateway/test_telegram_typing_backoff.py
+M  tests/gateway/test_tool_response_drop_recovery.py
+A  tests/gateway/test_update_cron_drain.py
+M  tests/gateway/test_webhook_adapter.py
+M  tests/hermes_cli/test_auth_provider_gate.py
+A  tests/hermes_cli/test_banner_skills_width.py
+M  tests/hermes_cli/test_codex_cli_model_picker.py
+M  tests/hermes_cli/test_config.py
+M  tests/hermes_cli/test_cron.py
+A  tests/hermes_cli/test_cron_dashboard_off_loop.py
+A  tests/hermes_cli/test_curator_usage.py
+M  tests/hermes_cli/test_dashboard_admin_endpoints.py
+M  tests/hermes_cli/test_dashboard_auth_password_login.py
+M  tests/hermes_cli/test_dashboard_auth_prefix.py
+A  tests/hermes_cli/test_dashboard_oauth_endpoints_server_gate.py
+A  tests/hermes_cli/test_dashboard_web_dist_validation.py
+M  tests/hermes_cli/test_gateway_service.py
+A  tests/hermes_cli/test_gpt56_registration.py
+M  tests/hermes_cli/test_inventory.py
+M  tests/hermes_cli/test_mcp_config.py
+M  tests/hermes_cli/test_memory_setup_provider_arg.py
+M  tests/hermes_cli/test_model_switch_context_display.py
+M  tests/hermes_cli/test_model_switch_custom_providers.py
+A  tests/hermes_cli/test_nous_session_validity.py
+A  tests/hermes_cli/test_oneshot_usage_file.py
+M  tests/hermes_cli/test_pip_install_detection.py
+M  tests/hermes_cli/test_plugins.py
+M  tests/hermes_cli/test_plugins_cmd_enable_disable_nested.py
+M  tests/hermes_cli/test_plugins_cmd_list.py
+A  tests/hermes_cli/test_quarantine_forensic_logging.py
+M  tests/hermes_cli/test_safe_mode.py
+M  tests/hermes_cli/test_serve_command.py
+A  tests/hermes_cli/test_session_export.py
+A  tests/hermes_cli/test_session_export_md.py
+A  tests/hermes_cli/test_session_filters.py
+M  tests/hermes_cli/test_sessions_delete.py
+A  tests/hermes_cli/test_sessions_export_md_cli.py
+M  tests/hermes_cli/test_tencent_tokenhub_provider.py
+M  tests/hermes_cli/test_tools_config.py
+M  tests/hermes_cli/test_tui_resume_flow.py
+A  tests/hermes_cli/test_uninstall_dry_run.py
+M  tests/hermes_cli/test_web_oauth_dispatch.py
+M  tests/hermes_cli/test_web_server.py
+M  tests/hermes_cli/test_web_server_cron_profiles.py
+A  tests/hermes_cli/test_web_server_gateway_topology.py
+M  tests/hermes_cli/test_web_server_oauth_write.py
+M  tests/hermes_cli/test_web_server_profile_unification.py
+M  tests/hermes_cli/test_webhook_cli.py
+A  tests/hermes_cli/test_whatsapp_onboarding.py
+A  tests/hermes_state/test_session_md_export.py
+M  tests/plugins/memory/test_mem0_backend.py
+M  tests/plugins/memory/test_mem0_setup.py
+M  tests/plugins/memory/test_mem0_v3.py
+M  tests/plugins/test_google_meet_plugin.py
+M  tests/providers/test_provider_profiles.py
+M  tests/run_agent/test_anthropic_prompt_cache_policy.py
+A  tests/run_agent/test_codex_app_server_compaction.py
+M  tests/run_agent/test_codex_app_server_integration.py
+M  tests/run_agent/test_credential_pool_interrupt.py
+M  tests/run_agent/test_infinite_compaction_loop.py
+M  tests/run_agent/test_plugin_context_engine_init.py
+M  tests/run_agent/test_retry_status_buffer.py
+M  tests/run_agent/test_run_agent.py
+A  tests/run_agent/test_stream_stale_breaker_reset.py
+A  tests/run_agent/test_stream_stale_circuit_breaker.py
+M  tests/run_agent/test_summarize_api_error.py
+M  tests/run_agent/test_tool_call_guardrail_runtime.py
+A  tests/secret_sources/__init__.py
+A  tests/secret_sources/conformance.py
+A  tests/secret_sources/test_secret_source_registry.py
+A  tests/test_background_review_list_shapes.py
+M  tests/test_bitwarden_secrets.py
+M  tests/test_desktop_electron_pin.py
+A  tests/test_env_loader_op_bootstrap.py
+M  tests/test_env_loader_secret_sources.py
+M  tests/test_hermes_state.py
+A  tests/test_install_ps1_node_path_for_npm.py
+A  tests/test_onepassword_secrets.py
+A  tests/test_pty_keepalive_ws.py
+A  tests/test_pty_session.py
+M  tests/test_retry_utils.py
+UU tests/test_tui_gateway_server.py
+M  tests/test_yuanbao_pipeline.py
+A  tests/tools/test_approved_command_clean_slate.py
+M  tests/tools/test_async_delegation.py
+M  tests/tools/test_base_environment.py
+M  tests/tools/test_delegate.py
+A  tests/tools/test_discord_send_message_caption.py
+M  tests/tools/test_discord_tool.py
+A  tests/tools/test_docker_rebootstrap_nous_session.py
+A  tests/tools/test_file_sync_sigint.py
+M  tests/tools/test_interrupt.py
+M  tests/tools/test_mcp_circuit_breaker.py
+M  tests/tools/test_mcp_stability.py
+A  tests/tools/test_mcp_stdio_init_timeout.py
+M  tests/tools/test_mcp_tool.py
+M  tests/tools/test_mcp_tool_issue_948.py
+A  tests/tools/test_media_caption_split.py
+M  tests/tools/test_memory_tool.py
+M  tests/tools/test_process_registry.py
+A  tests/tools/test_request_tool_approval.py
+M  tests/tools/test_schema_sanitizer.py
+M  tests/tools/test_send_message_tool.py
+M  tests/tools/test_skills_hub.py
+A  tests/tools/test_skills_tool_discovery_cache.py
+A  tests/tools/test_skills_tool_profile_scope.py
+A  tests/tools/test_telegram_send_message_caption.py
+M  tests/tools/test_url_safety.py
+M  tests/tools/test_web_providers.py
+M  tests/tools/test_web_tools_config.py
+M  tests/tools/test_whatsapp_send_message_media.py
+M  tests/tools/test_write_approval.py
+A  tests/tools/test_write_file_syntax_gate.py
+A  tests/tui_gateway/test_delegation_session_lifecycle.py
+A  tests/tui_gateway/test_gateway_owned_session_reap.py
+M  tests/tui_gateway/test_protocol.py
+A  tests/tui_gateway/test_session_platform_resolution.py
+A  tests/tui_gateway/test_slash_worker_profile_home.py
+M  tools/approval.py
+M  tools/async_delegation.py
+M  tools/code_execution_tool.py
+M  tools/cronjob_tools.py
+M  tools/delegate_tool.py
+M  tools/discord_tool.py
+M  tools/environments/base.py
+M  tools/environments/file_sync.py
+M  tools/file_operations.py
+M  tools/interrupt.py
+M  tools/lazy_deps.py
+A  tools/mcp_stdio_watchdog.py
+M  tools/mcp_tool.py
+M  tools/memory_tool.py
+M  tools/process_registry.py
+M  tools/schema_sanitizer.py
+M  tools/send_message_tool.py
+M  tools/skill_manager_tool.py
+M  tools/skills_hub.py
+M  tools/skills_tool.py
+M  tools/terminal_tool.py
+M  tools/url_safety.py
+M  tools/web_tools.py
+M  tui_gateway/server.py
+M  ui-tui/package.json
+M  ui-tui/src/__tests__/createSlashHandler.test.ts
+M  ui-tui/src/app/interfaces.ts
+M  ui-tui/src/app/slash/commands/session.ts
+M  ui-tui/src/components/appOverlays.tsx
+M  ui-tui/src/components/branding.tsx
+M  ui-tui/src/components/modelPicker.tsx
+M  ui-tui/src/types.ts
+M  uv.lock
+M  web/package.json
+M  web/src/components/ChatSidebar.tsx
+M  web/src/components/ModelPickerDialog.tsx
+M  web/src/components/OAuthLoginModal.tsx
+M  web/src/components/ReasoningPicker.tsx
+M  web/src/i18n/af.ts
+M  web/src/i18n/de.ts
+M  web/src/i18n/en.ts
+M  web/src/i18n/es.ts
+M  web/src/i18n/fr.ts
+M  web/src/i18n/ga.ts
+M  web/src/i18n/hu.ts
+M  web/src/i18n/it.ts
+M  web/src/i18n/ja.ts
+M  web/src/i18n/ko.ts
+M  web/src/i18n/pt.ts
+M  web/src/i18n/ru.ts
+M  web/src/i18n/tr.ts
+M  web/src/i18n/types.ts
+M  web/src/i18n/uk.ts
+M  web/src/i18n/zh-hant.ts
+M  web/src/i18n/zh.ts
+A  web/src/lib/api.test.ts
+M  web/src/lib/api.ts
+A  web/src/lib/clipboard.test.ts
+A  web/src/lib/clipboard.ts
+A  web/src/lib/pty-mobile-input.test.ts
+A  web/src/lib/pty-mobile-input.ts
+A  web/src/lib/pty-reconnect.test.ts
+A  web/src/lib/pty-reconnect.ts
+M  web/src/pages/ChannelsPage.tsx
+M  web/src/pages/ChatPage.tsx
+M  web/src/pages/PluginsPage.tsx
+M  web/src/pages/SystemPage.tsx
+M  website/docs/developer-guide/adding-tools.md
+M  website/docs/developer-guide/architecture.md
+A  website/docs/developer-guide/browser-provider-plugin.md
+M  website/docs/developer-guide/context-compression-and-caching.md
+M  website/docs/developer-guide/contributing.md
+M  website/docs/developer-guide/image-gen-provider-plugin.md
+M  website/docs/developer-guide/model-provider-plugin.md
+R  website/docs/guides/build-a-hermes-plugin.md -> website/docs/developer-guide/plugins/index.md
+A  website/docs/developer-guide/secret-source-plugin.md
+M  website/docs/developer-guide/web-search-provider-plugin.md
+M  website/docs/getting-started/learning-path.md
+M  website/docs/guides/github-pr-review-agent.md
+M  website/docs/guides/tips.md
+M  website/docs/guides/webhook-github-pr-review.md
+M  website/docs/guides/work-with-skills.md
+M  website/docs/integrations/index.md
+M  website/docs/reference/cli-commands.md
+M  website/docs/reference/environment-variables.md
+M  website/docs/user-guide/configuration.md
+M  website/docs/user-guide/features/built-in-plugins.md
+M  website/docs/user-guide/features/hooks.md
+M  website/docs/user-guide/features/mcp.md
+M  website/docs/user-guide/features/memory-providers.md
+M  website/docs/user-guide/features/plugins.md
+M  website/docs/user-guide/features/voice-mode.md
+M  website/docs/user-guide/messaging/discord.md
+M  website/docs/user-guide/messaging/index.md
+M  website/docs/user-guide/messaging/webhooks.md
+M  website/docs/user-guide/secrets/index.md
+A  website/docs/user-guide/secrets/onepassword.md
+M  website/docs/user-guide/sessions.md
+M  website/docusaurus.config.ts
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/developer-guide/adding-tools.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/developer-guide/architecture.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/developer-guide/contributing.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/developer-guide/image-gen-provider-plugin.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/developer-guide/model-provider-plugin.md
+R  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/guides/build-a-hermes-plugin.md -> website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/developer-guide/plugins/index.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/developer-guide/web-search-provider-plugin.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/getting-started/learning-path.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/guides/github-pr-review-agent.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/guides/tips.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/guides/webhook-github-pr-review.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/guides/work-with-skills.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/integrations/index.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/reference/cli-commands.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/reference/environment-variables.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/reference/optional-skills-catalog.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/user-guide/configuration.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/user-guide/features/built-in-plugins.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/user-guide/features/hooks.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/user-guide/features/plugins.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/user-guide/features/voice-mode.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/user-guide/messaging/discord.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/user-guide/messaging/index.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/user-guide/messaging/webhooks.md
+M  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/user-guide/sessions.md
+R  website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/user-guide/skills/optional/productivity/productivity-shop-app.md -> website/i18n/zh-Hans/docusaurus-plugin-content-docs/current/user-guide/skills/optional/productivity/productivity-shop.md
+M  website/sidebars.ts
+UU website/static/api/model-catalog.json
+?? .agent/tasks/hermes-upstream-20260710/raw/merge.txt
+?? .agent/tasks/hermes-upstream-20260710/raw/status-after-merge-attempt.txt

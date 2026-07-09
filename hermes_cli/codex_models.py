@@ -12,15 +12,36 @@ import os
 logger = logging.getLogger(__name__)
 
 DEFAULT_CODEX_MODELS: List[str] = [
+    # GPT-5.6 series (Sol/Terra/Luna + -pro high-effort modes) — GA 2026-07-09
+    # (previewed 2026-06-26).
     "gpt-5.6-sol",
+    "gpt-5.6-sol-pro",
     "gpt-5.6-terra",
+    "gpt-5.6-terra-pro",
     "gpt-5.6-luna",
+    "gpt-5.6-luna-pro",
     "gpt-5.5",
 ]
 
 _CODEX_PICKER_ALLOWLIST = tuple(DEFAULT_CODEX_MODELS)
 
-_FORWARD_COMPAT_TEMPLATE_MODELS: List[tuple[str, tuple[str, ...]]] = []
+_FORWARD_COMPAT_TEMPLATE_MODELS: List[tuple[str, tuple[str, ...]]] = [
+    ("gpt-5.6-sol", ("gpt-5.5", "gpt-5.4")),
+    ("gpt-5.6-sol-pro", ("gpt-5.5", "gpt-5.4")),
+    ("gpt-5.6-terra", ("gpt-5.5", "gpt-5.4")),
+    ("gpt-5.6-terra-pro", ("gpt-5.5", "gpt-5.4")),
+    ("gpt-5.6-luna", ("gpt-5.5", "gpt-5.4")),
+    ("gpt-5.6-luna-pro", ("gpt-5.5", "gpt-5.4")),
+    ("gpt-5.5", ("gpt-5.4", "gpt-5.4-mini", "gpt-5.3-codex")),
+    ("gpt-5.4-mini", ("gpt-5.3-codex",)),
+    ("gpt-5.4", ("gpt-5.3-codex",)),
+    # Surface Spark whenever any compatible Codex template is present so
+    # accounts hitting the live endpoint with an older lineup still see
+    # Spark in the picker. Backend gates real availability by ChatGPT Pro
+    # entitlement; Hermes does not. Ivan's picker filter below still hides it
+    # unless it is explicitly in _CODEX_PICKER_ALLOWLIST.
+    ("gpt-5.3-codex-spark", ("gpt-5.3-codex",)),
+]
 
 
 def _add_forward_compat_models(model_ids: List[str]) -> List[str]:
