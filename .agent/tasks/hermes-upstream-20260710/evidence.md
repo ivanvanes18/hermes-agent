@@ -82,3 +82,31 @@ git diff --check
 hermes --version
 python -c "import importlib.metadata as md; from hermes_cli import __version__, __release_date__; print(__version__, __release_date__, md.version('hermes-agent'))"
 ```
+
+## Post-install/sync activation-prep evidence
+
+PASS. The local checkout venv/package metadata was synced without restarting the live gateway.
+
+Commands and outputs:
+
+```bash
+uv pip install -e .
+# Installed hermes-agent==0.18.2 (from file:///Users/aiasistans/hermes-agent-update-check)
+
+hermes --version
+# Hermes Agent v0.18.2 (2026.7.7.2) · upstream caf4dcc7 · local 29156c63 (+1862 carried commits)
+
+python importlib.metadata smoke
+# source_version= 0.18.2 2026.7.7.2
+# dist_version= 0.18.2
+
+python -m pytest <post-install targeted subset> -q -o 'addopts='
+# 98 passed in 3.00s
+```
+
+Raw artifacts:
+- `raw/install-sync.txt`
+- `raw/post-install-smoke.txt`
+- `raw/post-install-tests.txt`
+
+Live gateway was not restarted or switched.

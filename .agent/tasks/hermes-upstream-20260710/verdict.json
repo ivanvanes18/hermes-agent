@@ -62,6 +62,16 @@
       "command": "hermes --version + import version smoke",
       "exit_code": 0,
       "summary": "source 0.18.2; dist metadata 0.18.0 caveat recorded"
+    },
+    {
+      "command": "uv pip install -e .",
+      "exit_code": 0,
+      "summary": "Installed editable hermes-agent 0.18.2 into checkout venv"
+    },
+    {
+      "command": "post-install smoke + targeted subset",
+      "exit_code": 0,
+      "summary": "dist_version 0.18.2; 98 passed"
     }
   ],
   "artifacts_used": [
@@ -70,11 +80,14 @@
     "raw/smoke.txt",
     "raw/merge.txt",
     "evidence.md",
-    "evidence.json"
+    "evidence.json",
+    "raw/install-sync.txt",
+    "raw/post-install-smoke.txt",
+    "raw/post-install-tests.txt"
   ],
   "known_caveats": [
     "Branch is not pushed and not activated in live gateway.",
-    "Distribution metadata remains 0.18.0 until package/venv install/sync.",
     "Full repository test suite was not run."
-  ]
+  ],
+  "verified_at": "2026-07-10T00:47:12+03:00"
 }

@@ -1,0 +1,8 @@
+Resolved 60 packages in 687ms
+   Building hermes-agent @ file:///Users/aiasistans/hermes-agent-update-check
+      Built hermes-agent @ file:///Users/aiasistans/hermes-agent-update-check
+Prepared 1 package in 1.90s
+Uninstalled 1 package in 3ms
+Installed 1 package in 4ms
+ - hermes-agent==0.18.0 (from file:///Users/aiasistans/hermes-agent-update-check)
+ + hermes-agent==0.18.2 (from file:///Users/aiasistans/hermes-agent-update-check)

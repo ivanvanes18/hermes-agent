@@ -73,7 +73,7 @@
       "proof": [
         "hermes --version reports source 0.18.2",
         "hermes_cli.__version__ reports 0.18.2",
-        "dist metadata 0.18.0 caveat recorded"
+        "post-install smoke: dist metadata now 0.18.2"
       ],
       "gaps": []
     },
@@ -115,7 +115,7 @@
   "known_gaps": [
     "Full suite not run; targeted suite passed.",
     "Branch not pushed/activated.",
-    "Distribution metadata still 0.18.0 until install/sync."
+    "Branch not pushed/activated; live gateway was not restarted."
   ],
   "commands": [
     {
@@ -137,5 +137,31 @@
       "exit_code": 0,
       "summary": "source 0.18.2; dist metadata 0.18.0 caveat recorded"
     }
-  ]
+  ],
+  "post_install_sync": {
+    "status": "PASS",
+    "commands": [
+      {
+        "command": "uv pip install -e .",
+        "exit_code": 0,
+        "summary": "hermes-agent 0.18.0 replaced with 0.18.2 in checkout venv"
+      },
+      {
+        "command": "hermes --version + importlib.metadata smoke",
+        "exit_code": 0,
+        "summary": "source_version 0.18.2; dist_version 0.18.2"
+      },
+      {
+        "command": "python -m pytest <post-install targeted subset> -q -o addopts=",
+        "exit_code": 0,
+        "summary": "98 passed in 3.00s"
+      }
+    ],
+    "artifacts": [
+      "raw/install-sync.txt",
+      "raw/post-install-smoke.txt",
+      "raw/post-install-tests.txt"
+    ],
+    "live_gateway_restarted": false
+  }
 }

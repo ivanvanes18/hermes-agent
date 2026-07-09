@@ -1,0 +1,7 @@
+Hermes Agent v0.18.2 (2026.7.7.2) · upstream caf4dcc7 · local 29156c63 (+1862 carried commits)
+Install directory: /Users/aiasistans/hermes-agent-update-check
+Install method: git
+Python: 3.11.14
+OpenAI SDK: 2.24.0
+source_version= 0.18.2 2026.7.7.2
+dist_version= 0.18.2
