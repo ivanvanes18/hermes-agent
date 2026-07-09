@@ -1,13 +1,80 @@
 {
   "task_id": "hermes-upstream-20260710",
-  "overall_verdict": "UNKNOWN",
+  "overall_verdict": "PASS",
   "criteria": [
     {
       "id": "AC1",
-      "status": "UNKNOWN",
-      "reason": "Verifier has not run yet."
+      "status": "PASS",
+      "reason": "branch update/upstream-2026-07-10-merge; backup/pre-upstream-merge-20260710-003337; no gateway restart/activation commands run"
+    },
+    {
+      "id": "AC2",
+      "status": "PASS",
+      "reason": "merge commit a47a1f4b2; raw/merge.txt captures conflict attempt; conflicts resolved and committed"
+    },
+    {
+      "id": "AC3",
+      "status": "PASS",
+      "reason": "direct probe: Codex allowlist includes GPT-5.6 Sol/Terra/Luna + pro + GPT-5.5 only; OpenRouter fallback remains minimax/minimax-m3; targeted picker tests passed"
+    },
+    {
+      "id": "AC4",
+      "status": "PASS",
+      "reason": "TUI /learn command.dispatch tests passed"
+    },
+    {
+      "id": "AC5",
+      "status": "PASS",
+      "reason": "plugins/memory/readable_tree files remain tracked; readable_tree memory/retrieval tests passed; no ~/.hermes/readable_memory mutation"
+    },
+    {
+      "id": "AC6",
+      "status": "PASS",
+      "reason": "telegram video attachment test passed; media caption split test passed; web tools config test passed"
+    },
+    {
+      "id": "AC7",
+      "status": "PASS",
+      "reason": "hermes --version reports source 0.18.2; hermes_cli.__version__ reports 0.18.2; dist metadata 0.18.0 caveat recorded"
+    },
+    {
+      "id": "AC8",
+      "status": "PASS",
+      "reason": "raw/test-unit.txt: 206 passed in 19.89s; raw/lint.txt: exit 0; raw/smoke.txt: exit 0"
+    },
+    {
+      "id": "AC9",
+      "status": "PASS",
+      "reason": "evidence.md/evidence.json/verdict.json/raw outputs updated"
     }
   ],
-  "commands_run": [],
-  "artifacts_used": []
+  "commands_run": [
+    {
+      "command": "python -m pytest <targeted files> -q -o addopts=",
+      "exit_code": 0,
+      "summary": "206 passed in 19.89s"
+    },
+    {
+      "command": "git diff --check && python -m py_compile <targeted files>",
+      "exit_code": 0
+    },
+    {
+      "command": "hermes --version + import version smoke",
+      "exit_code": 0,
+      "summary": "source 0.18.2; dist metadata 0.18.0 caveat recorded"
+    }
+  ],
+  "artifacts_used": [
+    "raw/test-unit.txt",
+    "raw/lint.txt",
+    "raw/smoke.txt",
+    "raw/merge.txt",
+    "evidence.md",
+    "evidence.json"
+  ],
+  "known_caveats": [
+    "Branch is not pushed and not activated in live gateway.",
+    "Distribution metadata remains 0.18.0 until package/venv install/sync.",
+    "Full repository test suite was not run."
+  ]
 }

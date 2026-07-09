@@ -25,7 +25,7 @@ def test_get_codex_model_ids_prioritizes_default_and_cache(tmp_path, monkeypatch
 
     models = get_codex_model_ids()
 
-    assert models == ["gpt-5.6-sol", "gpt-5.6-terra", "gpt-5.6-luna", "gpt-5.5"]
+    assert models == DEFAULT_CODEX_MODELS
     assert "gpt-5.1-codex" not in models
     assert "gpt-5.4" not in models
     assert "gpt-5-hidden-codex" not in models
@@ -63,7 +63,8 @@ def test_get_codex_model_ids_filters_live_discovery_to_working_set(monkeypatch):
 
     models = get_codex_model_ids(access_token="codex-access-token")
 
-    assert models == ["gpt-5.6-sol", "gpt-5.6-luna", "gpt-5.5"]
+    assert models == DEFAULT_CODEX_MODELS
+    assert "gpt-5.3-codex-spark" not in models
 
 
 def test_get_codex_model_ids_falls_back_when_live_has_no_working_models(monkeypatch):

@@ -72,8 +72,13 @@ def test_normal_path_still_works(hermes_auth_only_env):
     assert "openai-codex" in slugs
 
 
-def test_codex_picker_uses_live_codex_catalog(hermes_auth_only_env, tmp_path, monkeypatch):
-    """The gateway /model picker should surface Codex CLI-only listed models."""
+def test_codex_picker_keeps_ivan_working_set(hermes_auth_only_env, tmp_path, monkeypatch):
+    """Ivan's gateway /model picker keeps the subscribed working Codex set.
+
+    The live/cache catalog may contain extra Codex CLI-only models such as
+    Spark, but the local runtime intentionally hides them unless Ivan adds them
+    to the explicit allowlist.
+    """
     from hermes_cli.model_switch import list_authenticated_providers
 
     codex_home = tmp_path / "codex-home"
@@ -102,7 +107,16 @@ def test_codex_picker_uses_live_codex_catalog(hermes_auth_only_env, tmp_path, mo
     )
 
     codex = next(p for p in providers if p["slug"] == "openai-codex")
-    assert "gpt-5.3-codex-spark" in codex["models"]
+    assert codex["models"] == [
+        "gpt-5.6-sol",
+        "gpt-5.6-sol-pro",
+        "gpt-5.6-terra",
+        "gpt-5.6-terra-pro",
+        "gpt-5.6-luna",
+        "gpt-5.6-luna-pro",
+        "gpt-5.5",
+    ]
+    assert "gpt-5.3-codex-spark" not in codex["models"]
     assert codex["total_models"] == len(codex["models"])
 
 
@@ -146,8 +160,8 @@ def claude_code_only_env(tmp_path, monkeypatch):
     return hermes_home
 
 
-def test_claude_code_file_detected_by_model_picker(claude_code_only_env):
-    """anthropic should appear when credentials only exist in ~/.claude/.credentials.json."""
+def test_claude_code_file_hidden_by_ivan_provider_allowlist(claude_code_only_env):
+    """Claude Code credentials can exist, but Ivan's picker hides provider zoo entries."""
     from hermes_cli.model_switch import list_authenticated_providers
 
     providers = list_authenticated_providers(
@@ -155,13 +169,7 @@ def test_claude_code_file_detected_by_model_picker(claude_code_only_env):
         max_models=10,
     )
     slugs = [p["slug"] for p in providers]
-    assert "anthropic" in slugs, (
-        f"anthropic not found in /model picker providers: {slugs}"
-    )
-
-    anthropic = next(p for p in providers if p["slug"] == "anthropic")
-    assert anthropic["is_current"] is True
-    assert anthropic["total_models"] > 0
+    assert "anthropic" not in slugs
 
 
 def test_no_codex_when_no_credentials(tmp_path, monkeypatch):

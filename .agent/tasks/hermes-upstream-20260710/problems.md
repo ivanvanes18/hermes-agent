@@ -1,17 +1,8 @@
 # Problems: hermes-upstream-20260710
 
-_No verifier findings yet._
+No open problems after final targeted verification.
 
-Use this file only when `verdict.json` is not `PASS`.
-
-## Template for each non-PASS acceptance criterion
-
-### ACX: <criterion text>
-- Status: FAIL or UNKNOWN
-- Why it is not proven:
-- Minimal reproduction steps:
-- Expected:
-- Actual:
-- Affected files:
-- Smallest safe fix:
-- Corrective hint:
+Known caveats, not blockers for this merge branch:
+- Branch is not pushed or activated in the live gateway.
+- Distribution metadata still reports `hermes-agent 0.18.0` until install/sync; source version reports `0.18.2`.
+- Full test suite was not run; targeted suite passed.

@@ -1,20 +1,141 @@
 {
   "task_id": "hermes-upstream-20260710",
-  "overall_status": "UNKNOWN",
+  "overall_status": "PASS",
   "acceptance_criteria": [
     {
       "id": "AC1",
-      "text": "TODO",
-      "status": "UNKNOWN",
-      "proof": [],
-      "gaps": [
-        "Not yet populated."
-      ]
+      "text": "Work happens on isolated update branch with backup branch; no live gateway activation.",
+      "status": "PASS",
+      "proof": [
+        "branch update/upstream-2026-07-10-merge",
+        "backup/pre-upstream-merge-20260710-003337",
+        "no gateway restart/activation commands run"
+      ],
+      "gaps": []
+    },
+    {
+      "id": "AC2",
+      "text": "Branch incorporates upstream/main or captures exact blocker evidence.",
+      "status": "PASS",
+      "proof": [
+        "merge commit a47a1f4b2",
+        "raw/merge.txt captures conflict attempt",
+        "conflicts resolved and committed"
+      ],
+      "gaps": []
+    },
+    {
+      "id": "AC3",
+      "text": "Ivan-specific model picker curation remains present.",
+      "status": "PASS",
+      "proof": [
+        "direct probe: Codex allowlist includes GPT-5.6 Sol/Terra/Luna + pro + GPT-5.5 only",
+        "OpenRouter fallback remains minimax/minimax-m3",
+        "targeted picker tests passed"
+      ],
+      "gaps": []
+    },
+    {
+      "id": "AC4",
+      "text": "Local /learn behavior remains present/reconciled.",
+      "status": "PASS",
+      "proof": [
+        "TUI /learn command.dispatch tests passed"
+      ],
+      "gaps": []
+    },
+    {
+      "id": "AC5",
+      "text": "Local readable_tree memory provider/tooling preserved; no memory data deleted.",
+      "status": "PASS",
+      "proof": [
+        "plugins/memory/readable_tree files remain tracked",
+        "readable_tree memory/retrieval tests passed",
+        "no ~/.hermes/readable_memory mutation"
+      ],
+      "gaps": []
+    },
+    {
+      "id": "AC6",
+      "text": "Gateway/media/GGE attachment behavior and web plugin visibility preserved or checked.",
+      "status": "PASS",
+      "proof": [
+        "telegram video attachment test passed",
+        "media caption split test passed",
+        "web tools config test passed"
+      ],
+      "gaps": []
+    },
+    {
+      "id": "AC7",
+      "text": "Version metadata/update state coherent or divergence recorded.",
+      "status": "PASS",
+      "proof": [
+        "hermes --version reports source 0.18.2",
+        "hermes_cli.__version__ reports 0.18.2",
+        "dist metadata 0.18.0 caveat recorded"
+      ],
+      "gaps": []
+    },
+    {
+      "id": "AC8",
+      "text": "Targeted verification covers requested surfaces.",
+      "status": "PASS",
+      "proof": [
+        "raw/test-unit.txt: 206 passed in 19.89s",
+        "raw/lint.txt: exit 0",
+        "raw/smoke.txt: exit 0"
+      ],
+      "gaps": []
+    },
+    {
+      "id": "AC9",
+      "text": "Proof artifacts updated before completion claim.",
+      "status": "PASS",
+      "proof": [
+        "evidence.md/evidence.json/verdict.json/raw outputs updated"
+      ],
+      "gaps": []
     }
   ],
-  "changed_files": [],
-  "commands_for_fresh_verifier": [],
+  "changed_files": [
+    "hermes_cli/codex_models.py",
+    "hermes_cli/models.py",
+    "tests/hermes_cli/test_codex_models.py",
+    "tests/hermes_cli/test_codex_cli_model_picker.py",
+    "tests/test_tui_gateway_server.py",
+    "website/static/api/model-catalog.json",
+    ".agent/tasks/hermes-upstream-20260710/*"
+  ],
+  "commands_for_fresh_verifier": [
+    "python -m pytest <targeted files> -q -o addopts=",
+    "git diff --check && python -m py_compile <targeted files>",
+    "hermes --version + import version smoke"
+  ],
   "known_gaps": [
-    "Evidence not yet populated."
+    "Full suite not run; targeted suite passed.",
+    "Branch not pushed/activated.",
+    "Distribution metadata still 0.18.0 until install/sync."
+  ],
+  "commands": [
+    {
+      "command": "git merge --no-edit upstream/main",
+      "exit_code": 1,
+      "note": "Initial expected conflicts, then resolved and committed merge a47a1f4b2"
+    },
+    {
+      "command": "python -m pytest <targeted files> -q -o addopts=",
+      "exit_code": 0,
+      "summary": "206 passed in 19.89s"
+    },
+    {
+      "command": "git diff --check && python -m py_compile <targeted files>",
+      "exit_code": 0
+    },
+    {
+      "command": "hermes --version + import version smoke",
+      "exit_code": 0,
+      "summary": "source 0.18.2; dist metadata 0.18.0 caveat recorded"
+    }
   ]
 }
