@@ -12,6 +12,7 @@ from types import SimpleNamespace
 
 from agent.chat_completion_helpers import rewrite_prompt_model_identity
 from agent.conversation_loop import _sync_failover_system_message
+from agent.prompt_builder import apply_ultra_reasoning_guidance
 
 
 _PROMPT = (
@@ -30,6 +31,9 @@ def _agent(prompt=_PROMPT, ephemeral=None):
     return SimpleNamespace(
         _cached_system_prompt=prompt,
         ephemeral_system_prompt=ephemeral,
+        reasoning_config=None,
+        valid_tool_names=[],
+        provider="openai-codex",
     )
 
 
@@ -102,3 +106,29 @@ class TestSyncFailoverSystemMessage:
         assert api_messages == [{"role": "user", "content": "hi"}]
         # Still returns the cached prompt for subsequent call-block rebuilds.
         assert result == agent._cached_system_prompt
+
+    def test_removes_ultra_guidance_for_non_codex_fallback(self):
+        agent = _agent()
+        agent.reasoning_config = {"enabled": True, "effort": "ultra"}
+        agent.valid_tool_names = ["delegate_task"]
+        codex_prompt = apply_ultra_reasoning_guidance(_PROMPT, agent)
+        assert "# Ultra reasoning mode" in codex_prompt
+
+        rewrite_prompt_model_identity(agent, "gemma4:e2b-mlx", "custom")
+        agent.provider = "custom"
+        api_messages = [{"role": "system", "content": codex_prompt}]
+        result = _sync_failover_system_message(agent, api_messages, codex_prompt)
+
+        assert "# Ultra reasoning mode" not in result
+        assert "# Ultra reasoning mode" not in api_messages[0]["content"]
+
+    def test_adds_ultra_guidance_for_codex_runtime(self):
+        agent = _agent()
+        agent.reasoning_config = {"enabled": True, "effort": "ultra"}
+        agent.valid_tool_names = ["delegate_task"]
+        api_messages = [{"role": "system", "content": _PROMPT}]
+
+        result = _sync_failover_system_message(agent, api_messages, _PROMPT)
+
+        assert "# Ultra reasoning mode" in result
+        assert "# Ultra reasoning mode" in api_messages[0]["content"]

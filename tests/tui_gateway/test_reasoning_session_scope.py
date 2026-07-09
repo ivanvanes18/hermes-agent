@@ -23,6 +23,8 @@ from __future__ import annotations
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
+
 import tui_gateway.server as server
 from tui_gateway.server import _session_info
 
@@ -99,6 +101,22 @@ class TestConfigSetReasoningSessionScope:
     def test_unknown_value_rejected(self) -> None:
         resp = self._dispatch({"key": "reasoning", "value": "bogus"})
         assert "error" in resp
+
+    @pytest.mark.parametrize("effort", ["max", "ultra"])
+    def test_extended_efforts_use_shared_parser(self, effort: str) -> None:
+        session = {"session_key": "k-ultra", "agent": None}
+        with patch.dict(server._sessions, {"s-ultra": session}, clear=False), \
+                patch.object(server, "_write_config_key") as write_key:
+            resp = self._dispatch(
+                {"key": "reasoning", "session_id": "s-ultra", "value": effort}
+            )
+
+        assert resp["result"]["value"] == effort
+        assert session["create_reasoning_override"] == {
+            "enabled": True,
+            "effort": effort,
+        }
+        write_key.assert_not_called()
 
 
 class TestLoadReasoningConfigYamlBoolean:

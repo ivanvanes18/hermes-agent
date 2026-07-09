@@ -1276,10 +1276,12 @@ Control how much "thinking" the model does before responding:
 
 ```yaml
 agent:
-  reasoning_effort: ""   # empty = medium (default). Options: none, minimal, low, medium, high, xhigh (max)
+  reasoning_effort: ""   # empty = medium. Options: none, minimal, low, medium, high, xhigh, max, ultra
 ```
 
 When unset (default), reasoning effort defaults to "medium" — a balanced level that works well for most tasks. Setting a value overrides it — higher reasoning effort gives better results on complex tasks at the cost of more tokens and latency.
+
+`max` and `ultra` are provider/model-dependent settings. The authenticated Codex catalog exposes both for GPT-5.6 Sol and Terra. Codex implements `ultra` in its client: it sends `max` to the Responses API and turns on proactive multi-agent behavior. For the `openai-codex` provider, Hermes approximates that contract by sending `max` through the Codex transport and, when `delegate_task` is loaded, adding proactive delegation guidance. This is not byte-for-byte equivalent to Codex's internal orchestration. Models that do not advertise an extended level may reject it, so do not make `ultra` a cross-provider default.
 
 :::note Adaptive-thinking models (Claude 4.6+, Fable/Mythos-class) over OpenRouter
 These models use *adaptive* thinking and don't accept the usual `reasoning.effort`
@@ -1287,8 +1289,8 @@ field — OpenRouter ignores it for them. Hermes transparently routes your
 `reasoning_effort` to OpenRouter's `verbosity` parameter instead (which maps to
 Anthropic's `output_config.effort`), so the same `low`/`medium`/`high`/`xhigh`
 knob keeps working — no extra configuration needed. `none` (or unset) leaves the
-model on its own adaptive default. (`max` is accepted on the wire but is not a
-selectable `reasoning_effort` value; `xhigh` is the configurable ceiling.) The
+model on its own adaptive default. Extended values such as `max` and `ultra`
+remain provider-dependent and may be clamped or rejected outside Codex. The
 native Anthropic provider already controls effort directly and is unaffected.
 :::
 
@@ -1297,6 +1299,8 @@ You can also change the reasoning effort at runtime with the `/reasoning` comman
 ```
 /reasoning           # Show current effort level and display state
 /reasoning high      # Set reasoning effort to high
+/reasoning max       # Maximum single-agent reasoning (provider/model dependent)
+/reasoning ultra     # Max wire effort + proactive Hermes delegation when available
 /reasoning none      # Disable reasoning
 /reasoning show      # Show model thinking above each response
 /reasoning hide      # Hide model thinking

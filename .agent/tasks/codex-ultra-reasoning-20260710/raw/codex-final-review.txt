@@ -1,0 +1,2 @@
+Important — [auxiliary_client.py:934](/Users/aiasistans/hermes-agent-ultra-patch/agent/auxiliary_client.py:934) unconditionally maps Ultra to Max, but this adapter also serves xAI OAuth ([line 2444](/Users/aiasistans/hermes-agent-ultra-patch/agent/auxiliary_client.py:2444)) and custom/Azure Responses backends. This violates Codex-only mapping and lacks a scoped auxiliary test.
+Minor: none.

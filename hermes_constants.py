@@ -791,13 +791,20 @@ def apply_subprocess_home_env(env: dict[str, str]) -> None:
         env["HOME"] = home
 
 
-VALID_REASONING_EFFORTS = ("minimal", "low", "medium", "high", "xhigh", "max")
+# Compatibility bridge: the authenticated Codex catalog exposed GPT-5.6 Sol/
+# Terra ``ultra`` before upstream Hermes surfaced it. Native codex-rs treats
+# Ultra as client-side orchestration: it sends ``max`` on the wire and enables
+# proactive multi-agent behavior. Hermes approximates that split in the Codex
+# transport + system prompt. Once upstream ships equivalent parser, transport,
+# CLI, gateway, and orchestration support, prefer upstream and drop the local
+# bridge.
+VALID_REASONING_EFFORTS = ("minimal", "low", "medium", "high", "xhigh", "max", "ultra")
 
 
 def parse_reasoning_effort(effort) -> dict | None:
     """Parse a reasoning effort level into a config dict.
 
-    Valid levels: "none", "minimal", "low", "medium", "high", "xhigh", "max".
+    Valid levels: "none", "minimal", "low", "medium", "high", "xhigh", "max", "ultra".
     Returns None when the input is empty or unrecognized (caller uses default).
     Returns {"enabled": False} for "none" (aliases: "false", "disabled", and
     YAML boolean False — users write ``reasoning_effort: false``/``off``/``no``

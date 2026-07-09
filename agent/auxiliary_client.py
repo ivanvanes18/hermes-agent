@@ -850,9 +850,16 @@ class _CodexCompletionsAdapter:
     """Drop-in shim that accepts chat.completions.create() kwargs and
     routes them through the Codex Responses streaming API."""
 
-    def __init__(self, real_client: OpenAI, model: str):
+    def __init__(
+        self,
+        real_client: Any,
+        model: str,
+        *,
+        is_codex_backend: bool = True,
+    ):
         self._client = real_client
         self._model = model
+        self._is_codex_backend = is_codex_backend
 
     def create(self, **kwargs) -> Any:
         messages = kwargs.get("messages", [])
@@ -929,6 +936,10 @@ class _CodexCompletionsAdapter:
                     # match the main-agent Codex transport behavior.
                     if effort == "minimal":
                         effort = "low"
+                    # Native codex-rs maps Ultra -> Max on the wire; Ultra's
+                    # proactive multi-agent behavior remains client-side.
+                    if self._is_codex_backend and effort == "ultra":
+                        effort = "max"
                     resp_kwargs["reasoning"] = {
                         "effort": effort,
                         "summary": "auto",
@@ -1177,9 +1188,19 @@ class CodexAuxiliaryClient:
     Also exposes .api_key and .base_url for introspection by async wrappers.
     """
 
-    def __init__(self, real_client: OpenAI, model: str):
+    def __init__(
+        self,
+        real_client: Any,
+        model: str,
+        *,
+        is_codex_backend: bool = True,
+    ):
         self._real_client = real_client
-        adapter = _CodexCompletionsAdapter(real_client, model)
+        adapter = _CodexCompletionsAdapter(
+            real_client,
+            model,
+            is_codex_backend=is_codex_backend,
+        )
         self.chat = _CodexChatShim(adapter)
         self.api_key = real_client.api_key
         self.base_url = real_client.base_url
@@ -2437,7 +2458,11 @@ def _build_xai_oauth_aux_client(model: str) -> Tuple[Optional[Any], Optional[str
     api_key, base_url = resolved
     logger.debug("Auxiliary client: xAI OAuth (%s via Responses API)", model)
     real_client = _create_openai_client(api_key=api_key, base_url=base_url)
-    return CodexAuxiliaryClient(real_client, model), model
+    return CodexAuxiliaryClient(
+        real_client,
+        model,
+        is_codex_backend=False,
+    ), model
 
 
 def _build_codex_client(model: str) -> Tuple[Optional[Any], Optional[str]]:

@@ -1,0 +1,2 @@
+current_upstream_native_ultra= False
+synthetic_native_ultra_detection= PASS

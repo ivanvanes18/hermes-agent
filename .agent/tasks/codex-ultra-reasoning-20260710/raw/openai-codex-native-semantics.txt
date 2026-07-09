@@ -1,0 +1,51 @@
+openai/codex HEAD 6ced1ac5eb57916ae20ebf2afa929112890fc278
+
+## codex-rs/core/src/client.rs:170-179
+170|    pub(crate) summary: ReasoningSummaryConfig,
+171|    pub(crate) service_tier: Option<String>,
+172|}
+173|
+174|fn reasoning_effort_for_request(effort: ReasoningEffortConfig) -> ReasoningEffortConfig {
+175|    match effort {
+176|        ReasoningEffortConfig::Ultra => ReasoningEffortConfig::Max,
+177|        effort => effort,
+178|    }
+179|}
+
+## codex-rs/core/src/session/multi_agents.rs:47-56
+47|        .config
+48|        .multi_agent_v2
+49|        .multi_agent_mode_hint_text
+50|    {
+51|        Some(hint_text) => MultiAgentMode::Custom(hint_text.clone()),
+52|        None => match turn_context.effective_reasoning_effort() {
+53|            Some(ReasoningEffort::Ultra) => MultiAgentMode::Proactive,
+54|            _ => MultiAgentMode::ExplicitRequestOnly,
+55|        },
+56|    };
+
+## codex-rs/protocol/src/openai_models.rs:43-66
+43|    Low,
+44|    #[default]
+45|    Medium,
+46|    High,
+47|    XHigh,
+48|    Max,
+49|    Ultra,
+50|    /// A model-defined effort value that this client does not know yet.
+51|    Custom(String),
+52|}
+53|
+54|impl ReasoningEffort {
+55|    /// Returns the exact value used on the wire.
+56|    pub fn as_str(&self) -> &str {
+57|        match self {
+58|            Self::None => "none",
+59|            Self::Minimal => "minimal",
+60|            Self::Low => "low",
+61|            Self::Medium => "medium",
+62|            Self::High => "high",
+63|            Self::XHigh => "xhigh",
+64|            Self::Max => "max",
+65|            Self::Ultra => "ultra",
+66|            Self::Custom(effort) => effort,

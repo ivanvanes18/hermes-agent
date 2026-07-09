@@ -1,0 +1,3 @@
+Error loading config.toml: unknown variant `ultra`, expected one of `none`, `minimal`, `low`, `medium`, `high`, `xhigh`
+in `model_reasoning_effort`
+

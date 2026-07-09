@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<stdin>", line 31, in <module>
+  File "/Users/aiasistans/hermes-agent-update-check/.venv/lib/python3.11/site-packages/openai/resources/responses/responses.py", line 898, in create
+    return self._post(
+           ^^^^^^^^^^^
+  File "/Users/aiasistans/hermes-agent-update-check/.venv/lib/python3.11/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/aiasistans/hermes-agent-update-check/.venv/lib/python3.11/site-packages/openai/_base_client.py", line 1070, in request
+    raise self._make_status_error_from_response(err.response) from None
+openai.BadRequestError: Error code: 400 - {'error': {'message': "Invalid value: 'ultra'. Supported values are: 'none', 'minimal', 'low', 'medium', 'high', and 'xhigh'.", 'type': 'invalid_request_error', 'param': 'reasoning.effort', 'code': 'invalid_value'}}

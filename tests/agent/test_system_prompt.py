@@ -3,6 +3,7 @@
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from agent.prompt_builder import apply_ultra_reasoning_guidance
 from agent.system_prompt import build_system_prompt_parts
 
 
@@ -67,6 +68,10 @@ def _stable_prompt(agent):
         return build_system_prompt_parts(agent)["stable"]
 
 
+def _effective_prompt(agent):
+    return apply_ultra_reasoning_guidance(_stable_prompt(agent), agent)
+
+
 def _init_code_repo(path):
     """A git repo that actually holds code — the coding posture requires a source
     file (or manifest), not a bare ``.git`` (a prose/notes repo stays general)."""
@@ -99,3 +104,50 @@ class TestCodingContextBlock:
         monkeypatch.setenv("TERMINAL_CWD", str(tmp_path))
         agent = _make_agent(valid_tool_names=[], platform="cli")
         assert "coding agent" not in _stable_prompt(agent)
+
+
+class TestUltraReasoningGuidance:
+    def test_injected_with_delegate_tool(self):
+        agent = _make_agent(
+            valid_tool_names=["delegate_task"],
+            reasoning_config={"enabled": True, "effort": "ultra"},
+            provider="openai-codex",
+        )
+        stable = _stable_prompt(agent)
+        assert "# Ultra reasoning mode" not in stable
+        effective = apply_ultra_reasoning_guidance(stable, agent)
+        assert "# Ultra reasoning mode" in effective
+        assert "delegate_task" in effective
+
+    def test_not_injected_for_non_ultra_effort(self):
+        agent = _make_agent(
+            valid_tool_names=["delegate_task"],
+            reasoning_config={"enabled": True, "effort": "max"},
+        )
+        assert "# Ultra reasoning mode" not in _effective_prompt(agent)
+
+    def test_not_injected_without_delegate_tool(self):
+        agent = _make_agent(
+            valid_tool_names=["read_file"],
+            reasoning_config={"enabled": True, "effort": "ultra"},
+        )
+        assert "# Ultra reasoning mode" not in _effective_prompt(agent)
+
+    def test_not_injected_for_non_codex_provider(self):
+        agent = _make_agent(
+            valid_tool_names=["delegate_task"],
+            reasoning_config={"enabled": True, "effort": "ultra"},
+            provider="openrouter",
+        )
+        assert "# Ultra reasoning mode" not in _effective_prompt(agent)
+
+    def test_application_is_idempotent(self):
+        agent = _make_agent(
+            valid_tool_names=["delegate_task"],
+            reasoning_config={"enabled": True, "effort": "ultra"},
+            provider="openai-codex",
+        )
+        once = apply_ultra_reasoning_guidance("base", agent)
+        twice = apply_ultra_reasoning_guidance(once, agent)
+        assert twice == once
+        assert twice.count("# Ultra reasoning mode") == 1

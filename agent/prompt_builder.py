@@ -373,6 +373,52 @@ PARALLEL_TOOL_CALL_GUIDANCE = (
     "in doubt and the calls are independent, batch them."
 )
 
+# Temporary compatibility bridge for Codex Ultra. OpenAI Codex implements
+# Ultra in the client: it sends ``max`` to the Responses API and switches the
+# local agent runtime to proactive multi-agent behavior. Hermes approximates
+# that split with explicit guidance when its own delegation tool is available.
+# Remove this block in favor of upstream Hermes once upstream ships native
+# Ultra orchestration.
+ULTRA_REASONING_GUIDANCE = (
+    "# Ultra reasoning mode\n"
+    "Use maximum reasoning plus proactive task delegation. For a non-trivial "
+    "task with two or more independent workstreams, proactively call "
+    "`delegate_task`; continue useful local work while children run and "
+    "integrate their returned evidence into the final verdict. Do not delegate "
+    "trivial work or tasks that require user interaction."
+)
+
+
+def apply_ultra_reasoning_guidance(prompt: str, agent) -> str:
+    """Return the request-time prompt for the active Ultra runtime.
+
+    Ultra orchestration is Codex-specific and provider fallback can happen
+    inside one turn, so this block must not be persisted in the session-stable
+    prompt. Applying it at request time keeps fallback prompts clean and makes
+    runtime `/reasoning` changes effective without stale DB prompt reuse.
+    """
+    text = str(prompt or "")
+    reasoning_config = getattr(agent, "reasoning_config", None)
+    enabled = (
+        isinstance(reasoning_config, dict)
+        and reasoning_config.get("enabled") is not False
+        and str(reasoning_config.get("effort", "")).strip().lower() == "ultra"
+        and str(getattr(agent, "provider", "")).strip().lower() == "openai-codex"
+        and "delegate_task" in (getattr(agent, "valid_tool_names", None) or [])
+    )
+    block = ULTRA_REASONING_GUIDANCE.strip()
+    has_block = block in text
+    if enabled:
+        if has_block:
+            return text
+        return f"{text.rstrip()}\n\n{block}".strip()
+    if not has_block:
+        return text
+    return "\n\n".join(
+        part for part in text.split("\n\n") if part.strip() != block
+    )
+
+
 # OpenAI GPT/Codex-specific execution guidance.  Addresses known failure modes
 # where GPT models abandon work on partial results, skip prerequisite lookups,
 # hallucinate instead of using tools, and declare "done" without verification.

@@ -75,6 +75,34 @@ class TestCodexBuildKwargs:
         )
         assert kw.get("reasoning", {}).get("effort") == "high"
 
+    @pytest.mark.parametrize(
+        ("configured_effort", "wire_effort"),
+        [("max", "max"), ("ultra", "max")],
+    )
+    def test_extended_reasoning_effort_uses_codex_wire_semantics(
+        self, transport, configured_effort, wire_effort
+    ):
+        kw = transport.build_kwargs(
+            model="gpt-5.6-sol",
+            messages=[{"role": "user", "content": "Hi"}],
+            tools=[],
+            reasoning_config={"enabled": True, "effort": configured_effort},
+            is_codex_backend=True,
+        )
+
+        assert kw["reasoning"]["effort"] == wire_effort
+
+    def test_ultra_is_not_rewritten_for_non_codex_responses_backends(self, transport):
+        kw = transport.build_kwargs(
+            model="future-responses-model",
+            messages=[{"role": "user", "content": "Hi"}],
+            tools=[],
+            reasoning_config={"enabled": True, "effort": "ultra"},
+            is_codex_backend=False,
+        )
+
+        assert kw["reasoning"]["effort"] == "ultra"
+
     def test_reasoning_disabled(self, transport):
         messages = [{"role": "user", "content": "Hi"}]
         kw = transport.build_kwargs(

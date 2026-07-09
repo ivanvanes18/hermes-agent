@@ -1,0 +1,11 @@
+Important
+
+- system_prompt.py:220: Ultra changes the cached stable prompt. CLI and gateway re-create the agent without ending the conversation, so entering/leaving Ultra changes the prompt prefix and cache key mid-conversation.
+- codex.py:168: `ultra -> max` is applied before backend discrimination. Consequently xAI and generic Responses paths receive `max` too, although the verified protocol behavior is Codex-specific.
+- hermes_constants.py:801: Ultra is accepted globally, while its delegation guidance checks only effort and tool presence. Non-Codex/model-switched sessions therefore inherit Codex-specific behavior, and non-Codex transports receive an effort this patch does not normalize.
+
+Minor
+
+- prompt_builder.py:378: Saying Hermes “mirrors” Codex’s runtime behavior overclaims a prompt-only delegation steer; no equivalent orchestration mode is implemented here.
+- hermes_constants.py:794: The comment claims catalog exposure for Sol/Terra, while the spec’s verified catalog fact names only `gpt-5.6-sol`.
+- hermes_constants.py:798: Upstream replacement is comment-driven and duplicated across parser, prompt, and transports; there is no implementation-level upstream-wins gate in the reviewed files.
