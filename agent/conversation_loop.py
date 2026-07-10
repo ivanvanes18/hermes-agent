@@ -507,21 +507,17 @@ def _sync_failover_system_message(agent, api_messages, active_system_prompt):
     message while the primary is down) ships the stale identity.
 
     Mutates ``api_messages[0]`` in place and returns the prompt to use as
-    ``active_system_prompt`` for subsequent call-block rebuilds. Ultra guidance
-    is reconciled against the newly active provider at the same boundary.
+    ``active_system_prompt`` for subsequent call-block rebuilds.
     """
     sp = getattr(agent, "_cached_system_prompt", None)
     if not isinstance(sp, str) or not sp:
         return active_system_prompt
-    from agent.prompt_builder import apply_ultra_reasoning_guidance
-
-    runtime_sp = apply_ultra_reasoning_guidance(sp, agent)
     if api_messages and api_messages[0].get("role") == "system":
-        effective = runtime_sp
+        effective = sp
         if agent.ephemeral_system_prompt:
             effective = (effective + "\n\n" + agent.ephemeral_system_prompt).strip()
         api_messages[0]["content"] = effective
-    return runtime_sp
+    return sp
 
 
 def run_conversation(
@@ -833,24 +829,22 @@ def run_conversation(
             # The signature field helps maintain reasoning continuity
             api_messages.append(api_msg)
 
-        # Build the final system message: stable cached prompt + request-time
-        # runtime guidance + ephemeral system prompt. Request-time additions are
-        # not persisted to the session DB, so provider failover cannot leak
-        # Codex-only behavior into another backend.
+        # Build the final system message: cached prompt + ephemeral system prompt.
+        # Ephemeral additions are API-call-time only (not persisted to session DB).
+        # External recall context is injected into the user message, not the system
+        # prompt, so the stable cache prefix remains unchanged.
         #
         # NOTE: Plugin context from pre_llm_call hooks is injected into the
         # user message (see injection block above), NOT the system prompt.
         # This is intentional — system prompt modifications break the prompt
         # cache prefix.  The system prompt is reserved for Hermes internals.
         #
-        # Hermes invariant: the base system prompt is built ONCE per session
-        # and replayed byte-for-byte as the cacheable prefix. Runtime guidance
-        # is appended after that stable prefix and is provider-scoped.
-        from agent.prompt_builder import apply_ultra_reasoning_guidance
-
-        effective_system = apply_ultra_reasoning_guidance(
-            active_system_prompt or "", agent
-        )
+        # Hermes invariant: the system prompt is built ONCE per session
+        # (cached on ``_cached_system_prompt``) and replayed verbatim on
+        # every turn.  We send it as a single content string so the
+        # bytes are byte-stable across turns and upstream prompt caches
+        # stay warm.
+        effective_system = active_system_prompt or ""
         if agent.ephemeral_system_prompt:
             effective_system = (effective_system + "\n\n" + agent.ephemeral_system_prompt).strip()
         if effective_system:

@@ -72,7 +72,7 @@ Type `/` in the CLI to open the autocomplete menu. Built-in commands are case-in
 | `/personality` | Set a predefined personality |
 | `/verbose` | Cycle tool progress display: off → new → all → verbose. Can be [enabled for messaging](#notes) via config. |
 | `/fast [normal\|fast\|status]` | Toggle fast mode — OpenAI Priority Processing / Anthropic Fast Mode. Options: `normal`, `fast`, `status`. |
-| `/reasoning` | Manage reasoning effort and display (levels: `none`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`, `ultra`) |
+| `/reasoning` | Manage reasoning effort and display (usage: /reasoning [level\|show\|hide]) |
 | `/skin` | Show or change the display skin/theme |
 | `/statusbar` (alias: `/sb`) | Toggle the context/model status bar on or off |
 | `/voice [on\|off\|tts\|status]` | Toggle CLI voice mode and spoken playback. Recording uses `voice.record_key` (default: `Ctrl+B`). |
@@ -222,7 +222,7 @@ The messaging gateway supports the following built-in commands inside Telegram, 
 | `/usage` | Show token usage, estimated cost breakdown (input/output), context window state, session duration, and — when available from the active provider — an **Account limits** section with remaining quota / credits pulled live from the provider's API. |
 | `/credits` | Show your Nous credit balance and a top-up link that opens the portal billing page in a browser. |
 | `/insights [days]` | Show usage analytics. |
-| `/reasoning [level\|show\|hide]` | Change reasoning effort (`none` through provider-dependent `max`/`ultra`) or toggle reasoning display. |
+| `/reasoning [level\|show\|hide]` | Change reasoning effort or toggle reasoning display. |
 | `/voice [on\|off\|tts\|join\|channel\|leave\|status]` | Control spoken replies in chat. `join`/`channel`/`leave` manage Discord voice-channel mode. |
 | `/rollback [number]` | List or restore filesystem checkpoints. |
 | `/background <prompt>` | Run a prompt in a separate background session. Results are delivered back to the same chat when the task finishes. See [Messaging Background Sessions](/user-guide/messaging/#background-sessions). |

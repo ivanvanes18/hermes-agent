@@ -3792,7 +3792,7 @@ class TestCodexAdapterReasoningTranslation:
     """
 
     @staticmethod
-    def _build_adapter(*, is_codex_backend=True):
+    def _build_adapter():
         """Build a _CodexCompletionsAdapter with a mocked responses.create()."""
         from agent.auxiliary_client import _CodexCompletionsAdapter
         from types import SimpleNamespace
@@ -3832,11 +3832,7 @@ class TestCodexAdapterReasoningTranslation:
 
         real_client = MagicMock()
         real_client.responses.create = _create
-        adapter = _CodexCompletionsAdapter(
-            real_client,
-            "gpt-5.3-codex",
-            is_codex_backend=is_codex_backend,
-        )
+        adapter = _CodexCompletionsAdapter(real_client, "gpt-5.3-codex")
         return adapter, captured_kwargs
 
     def test_reasoning_effort_medium_translated_to_top_level(self):
@@ -3873,23 +3869,6 @@ class TestCodexAdapterReasoningTranslation:
             extra_body={"reasoning": {"effort": "high"}},
         )
         assert captured.get("reasoning") == {"effort": "high", "summary": "auto"}
-
-    def test_reasoning_effort_ultra_maps_to_codex_wire_max(self):
-        """Codex Ultra is client-side orchestration; the API receives max."""
-        adapter, captured = self._build_adapter()
-        adapter.create(
-            messages=[{"role": "user", "content": "hi"}],
-            extra_body={"reasoning": {"effort": "ultra"}},
-        )
-        assert captured.get("reasoning") == {"effort": "max", "summary": "auto"}
-
-    def test_reasoning_effort_ultra_is_not_rewritten_for_xai_responses(self):
-        adapter, captured = self._build_adapter(is_codex_backend=False)
-        adapter.create(
-            messages=[{"role": "user", "content": "hi"}],
-            extra_body={"reasoning": {"effort": "ultra"}},
-        )
-        assert captured.get("reasoning") == {"effort": "ultra", "summary": "auto"}
 
     def test_reasoning_disabled_omits_reasoning_and_include(self):
         adapter, captured = self._build_adapter()

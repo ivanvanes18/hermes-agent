@@ -2471,18 +2471,14 @@ class CLICommandsMixin:
 
         Usage:
             /reasoning              Show current effort level and display state
-            /reasoning <level>      Set reasoning effort (none, minimal, low, medium, high, xhigh, max, ultra)
+            /reasoning <level>      Set reasoning effort (none, minimal, low, medium, high, xhigh)
             /reasoning show|on      Show model thinking/reasoning in output
             /reasoning hide|off     Hide model thinking/reasoning from output
             /reasoning full         Show complete thinking (no 10-line clamp)
             /reasoning clamp        Collapse long thinking to the first 10 lines
         """
         from cli import _ACCENT, _DIM, _RST, _cprint, _parse_reasoning_config, save_config_value
-        from hermes_constants import VALID_REASONING_EFFORTS
         parts = cmd.strip().split(maxsplit=1)
-        effort_levels = ("none", *VALID_REASONING_EFFORTS)
-        effort_levels_pipe = "|".join(effort_levels)
-        effort_levels_text = ", ".join(effort_levels)
 
         if len(parts) < 2:
             # Show current state
@@ -2497,7 +2493,7 @@ class CLICommandsMixin:
             full_state = "full" if getattr(self, "reasoning_full", False) else "clamped to 10 lines"
             _cprint(f"  {_ACCENT}Reasoning effort:  {level}{_RST}")
             _cprint(f"  {_ACCENT}Reasoning display: {display_state} ({full_state}){_RST}")
-            _cprint(f"  {_DIM}Usage: /reasoning <{effort_levels_pipe}|show|hide|full|clamp>{_RST}")
+            _cprint(f"  {_DIM}Usage: /reasoning <none|minimal|low|medium|high|xhigh|show|hide|full|clamp>{_RST}")
             return
 
         arg = parts[1].strip().lower()
@@ -2538,7 +2534,7 @@ class CLICommandsMixin:
         parsed = _parse_reasoning_config(arg)
         if parsed is None:
             _cprint(f"  {_DIM}(._.) Unknown argument: {arg}{_RST}")
-            _cprint(f"  {_DIM}Valid levels: {effort_levels_text}{_RST}")
+            _cprint(f"  {_DIM}Valid levels: none, minimal, low, medium, high, xhigh{_RST}")
             _cprint(f"  {_DIM}Display:      show, hide{_RST}")
             return
 

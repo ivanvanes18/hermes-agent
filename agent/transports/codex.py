@@ -164,12 +164,6 @@ class ResponsesApiTransport(ProviderTransport):
 
         _effort_clamp = {"minimal": "low"}
         reasoning_effort = _effort_clamp.get(reasoning_effort, reasoning_effort)
-        # Native codex-rs implements Ultra as client-side orchestration: it
-        # sends ``max`` to the Codex Responses backend and separately enables
-        # proactive multi-agent behavior. Do not rewrite generic/xAI Responses
-        # requests: this compatibility rule is Codex-specific.
-        if is_codex_backend and reasoning_effort == "ultra":
-            reasoning_effort = "max"
 
         response_tools = _responses_tools(tools)
 

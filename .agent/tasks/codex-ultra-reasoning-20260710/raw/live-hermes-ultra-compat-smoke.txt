@@ -1,6 +1,0 @@
-{
-  "configured_effort": "ultra",
-  "wire_effort": "max",
-  "response_status": "completed",
-  "response_text": "ULTRA_COMPAT_OK"
-}

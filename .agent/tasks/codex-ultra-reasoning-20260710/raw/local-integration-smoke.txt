@@ -1,4 +1,0 @@
-parsed= {'enabled': True, 'effort': 'ultra'}
-wire_effort= max
-stable_has_ultra= False
-effective_ultra_guidance= True

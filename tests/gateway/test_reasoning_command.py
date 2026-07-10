@@ -4,7 +4,6 @@ import asyncio
 import inspect
 import sys
 import types
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -65,16 +64,6 @@ class _CapturingAgent:
 
 
 class TestReasoningCommand:
-    def test_all_locale_guidance_lists_extended_efforts(self):
-        """Wire-level effort names stay visible in every localized help string."""
-        for locale_path in Path("locales").glob("*.yaml"):
-            data = yaml.safe_load(locale_path.read_text(encoding="utf-8"))
-            reasoning = data["gateway"]["reasoning"]
-            for key in ("status", "unknown_arg"):
-                text = reasoning[key]
-                assert "max" in text, f"{locale_path}:{key} omits max"
-                assert "ultra" in text, f"{locale_path}:{key} omits ultra"
-
     @pytest.mark.asyncio
     async def test_reasoning_in_help_output(self):
         runner = _make_runner()
@@ -158,48 +147,6 @@ class TestReasoningCommand:
         assert runner._session_reasoning_overrides[session_key] == {"enabled": True, "effort": "high"}
         assert runner._reasoning_config == {"enabled": True, "effort": "high"}
         assert "session only" in result
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("effort", ["max", "ultra"])
-    async def test_extended_efforts_default_to_session_only(self, effort, tmp_path, monkeypatch):
-        hermes_home = tmp_path / "hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
-        config_path.write_text("agent:\n  reasoning_effort: medium\n", encoding="utf-8")
-        monkeypatch.setattr(gateway_run, "_hermes_home", hermes_home)
-
-        runner = _make_runner()
-        event = _make_event(f"/reasoning {effort}")
-        session_key = runner._session_key_for_source(event.source)
-
-        result = await runner._handle_reasoning_command(event)
-
-        saved = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-        assert saved["agent"]["reasoning_effort"] == "medium"
-        assert runner._session_reasoning_overrides[session_key] == {
-            "enabled": True,
-            "effort": effort,
-        }
-        assert f"`{effort}`" in result
-
-    @pytest.mark.asyncio
-    @pytest.mark.parametrize("effort", ["max", "ultra"])
-    async def test_extended_efforts_can_persist_globally(self, effort, tmp_path, monkeypatch):
-        hermes_home = tmp_path / "hermes"
-        hermes_home.mkdir()
-        config_path = hermes_home / "config.yaml"
-        config_path.write_text("agent:\n  reasoning_effort: medium\n", encoding="utf-8")
-        monkeypatch.setattr(gateway_run, "_hermes_home", hermes_home)
-
-        runner = _make_runner()
-        result = await runner._handle_reasoning_command(
-            _make_event(f"/reasoning {effort} --global")
-        )
-
-        saved = yaml.safe_load(config_path.read_text(encoding="utf-8"))
-        assert saved["agent"]["reasoning_effort"] == effort
-        assert runner._reasoning_config == {"enabled": True, "effort": effort}
-        assert "saved to config" in result
 
     @pytest.mark.asyncio
     async def test_reasoning_global_clears_existing_session_override(self, tmp_path, monkeypatch):

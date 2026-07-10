@@ -30,7 +30,7 @@ class TestParseReasoningConfig(unittest.TestCase):
         self.assertEqual(result, {"enabled": False})
 
     def test_valid_levels(self):
-        for level in ("low", "medium", "high", "xhigh", "max", "ultra", "minimal"):
+        for level in ("low", "medium", "high", "xhigh", "minimal"):
             result = self._parse(level)
             self.assertIsNotNone(result)
             self.assertTrue(result.get("enabled"))
@@ -41,6 +41,7 @@ class TestParseReasoningConfig(unittest.TestCase):
         self.assertIsNone(self._parse("  "))
 
     def test_unknown_returns_none(self):
+        self.assertIsNone(self._parse("ultra"))
         self.assertIsNone(self._parse("turbo"))
 
     def test_case_insensitive(self):
@@ -106,24 +107,6 @@ class TestHandleReasoningCommand(unittest.TestCase):
         parsed = _parse_reasoning_config(arg)
         stub.reasoning_config = parsed
         self.assertEqual(stub.reasoning_config, {"enabled": True, "effort": "high"})
-
-    def test_extended_effort_levels_use_the_real_cli_handler(self):
-        """The classic CLI must accept provider-native max/ultra levels."""
-        from hermes_cli.cli_commands_mixin import CLICommandsMixin
-
-        for level in ("max", "ultra"):
-            stub = object.__new__(CLICommandsMixin)
-            stub.reasoning_config = None  # type: ignore[assignment]
-            stub.show_reasoning = False
-            stub.agent = MagicMock()  # type: ignore[assignment]
-            with patch("cli.save_config_value", return_value=True) as save, patch("cli._cprint"):
-                stub._handle_reasoning_command(f"/reasoning {level}")
-
-            self.assertEqual(
-                stub.reasoning_config,
-                {"enabled": True, "effort": level},
-            )
-            save.assert_called_once_with("agent.reasoning_effort", level)
 
     def test_effort_none_disables_reasoning(self):
         from cli import _parse_reasoning_config
